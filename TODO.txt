@@ -1,0 +1,37 @@
+# TODO
+
+# --- Stage 1: Parsing ---
+# make virtual function between handler classes more consistent. 
+# make exception handling better
+# setup registry
+# set up instrument parsing vs factory for SOC
+# track handler methods
+
+# --- Stage 2: Formatting ---
+# track/song reading
+# pattern_lookup
+# echo buffer
+# track control flow
+
+# --- Stage 3: Exporting ---
+# setup midi writer submodule
+# compile it
+# load it into python
+# read file line by line
+# parse each line, create midi
+# colConext object might be needed to store intermediate note data
+# export song to correct path
+
+# --- Stage 4: GUI ---
+# setup a simple gui with wxPython:
+# browse for file button, populate input file text path
+# browse for folder destination
+# any widgets for additional options
+# execute/export button
+# alert "song has been written to $EXPORT_PATH!"
+
+# --- Stage 5: Exposure ---
+# Post on Github
+# YouTube video showcase, detailing the project and what it does, and what I learned
+# Write up a post on LinkedIn
+
