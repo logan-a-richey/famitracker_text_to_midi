@@ -1,16 +1,17 @@
 # instrument_handler.py
 
 import re
-from regex_patterns import RegexPatterns
-from instrument import Inst2A03, InstVRC6, InstVRC7, InstN163, InstS5B, InstFDS
+from loader_handlers.handler_registry import register 
+from helpers.regex_patterns import RegexPatterns
+from data.instrument import Inst2A03, InstVRC6, InstVRC7, InstFDS, InstN163, InstS5B
 
 class InstrumentHandler:
-    def __init__(self, parent):
-        self.parent = parent
-    
-################################################################################
+    def __init__(self, project_loader):
+        self.project_loader = project_loader
+
     @register("INST2A03")
-    def handle_inst_2a03(self, project: "Project", line: str):
+    # def handle_inst_2a03(self, project: "Project", line: str):
+    def handle_inst_2a03(self, project, line: str):
         regex_match = RegexPatterns.INST_2A03.match(line)
         if not regex_match:
             raise ValueError("Regex failed.")
@@ -27,9 +28,9 @@ class InstrumentHandler:
         
         project.instruments[inst_index] = inst_obj
     
-################################################################################
     @register("INSTVRC6")
-    def handle_inst_vrc6(self, project: "Project", line: str):
+    # def handle_inst_vrc6(self, project: "Project", line: str):
+    def handle_inst_vrc6(self, project, line: str):
         regex_match = RegexPatterns.INST_VRC6.match(line)
         if not regex_match:
             raise ValueError("Regex failed.")
@@ -46,9 +47,9 @@ class InstrumentHandler:
         
         project.instruments[inst_index] = inst_obj
     
-################################################################################
     @register("INSTVRC7")
-    def handle_inst_vrc7(self, project: "Project", line: str):
+    # def handle_inst_vrc7(self, project: "Project", line: str):
+    def handle_inst_vrc7(self, project, line: str):
         regex_match = RegexPatterns.INST_VRC7.match(line)
         if not regex_match:
             raise ValueError("Regex failed.")
@@ -63,9 +64,8 @@ class InstrumentHandler:
         
         project.instruments[inst_index] = inst_obj
 
-################################################################################
     @register("INSTN163")
-    def handle_inst_n163(self, project: "Project", line: str):
+    def handle_inst_n163(self, project,  line: str):
         ''' Namco instrument handler '''
         regex_match = RegexPatterns.INST_N163.match(line)
         if not regex_match:
@@ -82,14 +82,11 @@ class InstrumentHandler:
             w_size, w_pos, w_count
         )
         self.load_macro(inst_obj)
-        self.project.instruments[index] = inst_obj
-
-################################################################################
-    def parse_inst_fds(self, line) -> "InstFDS":
-        pass
+        project.instruments[index] = inst_obj
 
     @register("INSTFDS")
-    def handle_inst_fds(self, project: "Project", line: str):
+    # def handle_inst_fds(self, project: "Project", line: str):
+    def handle_inst_fds(self, project, line: str):
         ''' FDS Instrument handler '''
         regex_match = RegexPatterns.INST_FDS.match(line)
         if not regex_match:
@@ -105,7 +102,8 @@ class InstrumentHandler:
         pass
         
     @register("INSTS5B")
-    def handle_inst_s5b(self, project: "Project", line: str):
+    # def handle_inst_s5b(self, project: "Project", line: str):
+    def handle_inst_s5b(self, project, line: str):
         ''' Sunsoft instrument handler '''
         regex_match = RegexPatterns.INST_2A03.match(line)
         if not regex_match:
@@ -122,4 +120,3 @@ class InstrumentHandler:
         # self.load_macro(inst_obj)
         
         project.instruments[inst_index] = inst_obj
-

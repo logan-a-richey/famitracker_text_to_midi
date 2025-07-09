@@ -1,16 +1,17 @@
 # info_handler.py
 
-from handler_registry import register 
-from regex_patterns import RegexPatterns
+from loader_handlers.handler_registry import register 
+from helpers.regex_patterns import RegexPatterns
 
-class InfoHandler(self):
-    def __init__(self, parent_handler):
-        self.parent = parent_handler
+class InfoHandler:
+    def __init__(self, project_loader):
+        self.project_loader = project_loader
 
     @register("TITLE")
     @register("AUTHOR")
     @register("COPYRIGHT")
-    def handle_song_information(self, project, line):
+    # def handle_song_information(self, project: "Project", line: str):
+    def handle_song_information(self, project, line: str):
         ''' 
         Handle TITLE, AUTHOR, and COPYRIGHT metadata 
         Comment string is overwritten.
@@ -28,7 +29,8 @@ class InfoHandler(self):
         setattr(self.project, key, val)
 
     @register("COMMENT")
-    def handle_song_information(self, project, line):
+    # def handle_song_information(self, project: "Project", line: str):
+    def handle_song_information(self, project, line: str):
         ''' 
         Handle COMMENT metadata.
         Comment string is appended.
@@ -49,6 +51,7 @@ class InfoHandler(self):
     @register("VIBRATO")
     @register("SPLIT")
     @register("N163CHANNELS")
+    # def handle_global_settings(self, project: "Project", line: str):
     def handle_global_settings(self, project, line: str):
         ''' 
         Handle MACHINE, FRAMERATE, EXPANSION, VIBRATO, SPLIT, N163CHANNELS metadata. 
@@ -66,6 +69,4 @@ class InfoHandler(self):
             raise ValueError("Invalid GlobalSettings key.")
 
         setattr(self.project, key, val)
-
-        pass
 

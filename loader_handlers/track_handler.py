@@ -1,13 +1,14 @@
 # track_handler.py
 
 import re
-from regex_patterns import RegexPatterns
+from helpers.regex_patterns import RegexPatterns
+from loader_handlers.handler_registry import register
+from data.track import Track
 
-class TrackHandler(self):
-    def __init__(self, parent_handler, project):
-        self.parent = parent_handler
-        self.project = project 
-    
+class TrackHandler:
+    def __init__(self, project_loader):
+        self.project_loader = project_loader 
+
     @register("TRACK")
     def handle_track(self, project, line):
         pass

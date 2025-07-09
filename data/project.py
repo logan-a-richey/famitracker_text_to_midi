@@ -1,10 +1,10 @@
 
 class Project:
     def __init__(self):
-        self.title = ""
-        self.author = ""
-        self.copyright = ""
-        self.comment = ""
+        self.title = "DefaultTitle"
+        self.author = "DefaultAuthor"
+        self.copyright = "DefaultCopyright"
+        self.comment = "Line1\nLine2\nLine3"
         
         self.machine = 0
         self.framerate= 0
@@ -79,4 +79,6 @@ class Project:
         for track in self.tracks:
             out += "Track {} : {}\n".format(track.index, track.name)
         out += "\n"
-        
+    
+        print(out)
+

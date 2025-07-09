@@ -1,7 +1,7 @@
 # instrument.py
 
 from typing import List
-from inst_types import InstTypes
+from helpers.inst_types import InstTypes
 
 class MacroBinding:
     ''' Macro information for Instruments '''

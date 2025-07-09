@@ -16,22 +16,33 @@ from loader_handlers.macro_handler import MacroHandler
 from loader_handlers.instrument_handler import InstrumentHandler
 from loader_handlers.track_handler import TrackHandler
 
+from loader_handlers.handler_registry import collect_handlers
+
 class ProjectLoader:
     def __init__(self):
-        self.project: Optional["Project"] = None
+        self.project = None
         self.current_pattern: int = 0
         
-        self.meta_info_handler = MetaInfoHandler(self)
+        self.info_handler = InfoHandler(self)
         self.macro_handler = MacroHandler(self)
         self.instrument_handler = InstrumentHandler(self)
         self.track_handler = TrackHandler(self)
 
         self.dispatch: Dict[str, callable] = {}
-        
-        # TODO load dispatch from registry
+        self._load_dispatch()
+
+    def _load_dispatch(self):
+        for handler in [
+            self.info_handler,
+            self.macro_handler,
+            self.instrument_handler,
+            self.track_handler
+        ]:
+            self.dispatch.update(collect_handlers(handler))       
 
     def execute(self, project, input_file) -> None:
         self.project = project
+        self.current_pattern = 0
 
         # TODO better exception handling
         try:
@@ -44,12 +55,13 @@ class ProjectLoader:
                         continue
                     
                     first_word = line.split()[0]
-                    func = self.dispatch.get(first_word, None)
-                    if not func:
+                    handle = self.dispatch.get(first_word, None)
+                    if not handle:
                         continue
                     
                     print(first_word)
-                    func(line)
+                    handle(project, line)
+            
         except Exception as e:
             # for file not open error
             print("[E] {}".format(e))

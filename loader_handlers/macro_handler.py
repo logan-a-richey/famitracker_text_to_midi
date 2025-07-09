@@ -1,26 +1,31 @@
 # macro_handler.py
 
-class MacroHandler:
-    def __init__(self, parent):
-        self.parent = parent
+from helpers.regex_patterns import RegexPatterns
+from helpers.macro_types import MacroTypes
+from helpers.inst_types import InstTypes
+from helpers.generate_macro_key import generate_macro_key 
 
-    def parse_macro(self, line: str):
-        pass
-    
+from data.macro import Macro 
+
+from loader_handlers.handler_registry import register
+
+class MacroHandler:
+    def __init__(self, project_loader):
+        self.project_loader = project_loader
+
     @register("MACRO")
     @register("MACROVRC6")
     @register("MACRON163")
     @register("MACROS5B")
     def handle_macro(self, line: str):
         ''' Macro handler '''
-        regex_match = regex_patterns["MACRO"].match(line)
+        regex_match = RegexPatterns.MACRO.match(line)
 
         macro_tag = regex_match.group("tag")
         
         num_fields = ["type", "index", "loop", "release", "setting"]
         macro_type, macro_index, macro_loop, macro_release, macro_setting = list(map(int, regex_match.group(*num_fields)))
-        macro_data_str = regex_match.group("data")
-        macro_seq = list(map(int, regex_patterns["INT_LIST"].findall(macro_data_str)))
+        macro_seq = list(map(int, RegexPatterns.INT_LIST.findall(regex_match.group("data"))))
         
         inst_type = 0
         if macro_tag == "MACRO":
@@ -39,7 +44,8 @@ class MacroHandler:
         macro_obj = Macro(macro_type, macro_index, macro_loop, macro_release, macro_setting, macro_seq)
         self.project.macros[macro_key] = macro_obj
     
-    def load_macro(self, inst: "InstBase"):
+    # def load_macro(self, project: "Project", inst: "InstBase"):
+    def load_macro(self, project, inst):
         # load macros - I think we know all information ahead of time, 
         # but doing it this way since for FDS, we need to add Macro after instrument creation, not before.
         
@@ -71,9 +77,7 @@ class MacroHandler:
                 macro_types[i], 
                 inst_seq_indexes[i]
             )
-            macro = self.project.macros.get(macro_key, None)
+            macro = project.macros.get(macro_key, None)
             if macro:
                 inst_macro_fields[i] = macro
-        self.parse_macro(line)
-        pass
-
+        

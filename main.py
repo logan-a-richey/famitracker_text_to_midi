@@ -2,13 +2,14 @@
 # main.py
 
 import sys
+sys.dont_write_bytecode = True
 
-from project import Project 
-from project_loader import ProjectLoader
+from data.project import Project 
+from loader_handlers.project_loader import ProjectLoader
 # from project_formatter import ProjectFormatter
 # from project_exporter import ProjectExporter
 
-def get_input_file():
+def get_input_file() -> str:
     try:
         input_file = sys.argv[1]
     except:
@@ -21,6 +22,7 @@ def main():
 
     project = Project()
     stage1 = ProjectLoader()
+    print("Showing!")
     project.show()
 
     #stage2 = ProjectFormatter()
