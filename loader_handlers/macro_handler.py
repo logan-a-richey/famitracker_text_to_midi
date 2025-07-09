@@ -17,7 +17,7 @@ class MacroHandler:
     @register("MACROVRC6")
     @register("MACRON163")
     @register("MACROS5B")
-    def handle_macro(self, line: str):
+    def handle_macro(self, project, line: str):
         ''' Macro handler '''
         regex_match = RegexPatterns.MACRO.match(line)
 
@@ -37,19 +37,14 @@ class MacroHandler:
         elif macro_tag == "MACROS5B":
             inst_type = InstTypes.InstS5B
         else:
-            # invalid instrument macro type
-            return
+            raise ValueError("Invalid Macro Type")
         
         macro_key = generate_macro_key(inst_type, macro_type, macro_index)
-        macro_obj = Macro(macro_type, macro_index, macro_loop, macro_release, macro_setting, macro_seq)
-        self.project.macros[macro_key] = macro_obj
+        macro_obj = Macro(macro_type, macro_index, macro_loop, macro_release, macro_setting, macro_seq, macro_key)
+        project.macros[macro_key] = macro_obj
     
     # def load_macro(self, project: "Project", inst: "InstBase"):
     def load_macro(self, project, inst):
-        # load macros - I think we know all information ahead of time, 
-        # but doing it this way since for FDS, we need to add Macro after instrument creation, not before.
-        
-        # TODO  zip these together?
         inst_seq_indexes = [
             inst.macros.seq_vol, 
             inst.macros.seq_arp, 
@@ -72,11 +67,7 @@ class MacroHandler:
             inst.macros.mac_dut
         ]
         for i in range(5):
-            macro_key = generate_macro_key(
-                inst.inst_type, 
-                macro_types[i], 
-                inst_seq_indexes[i]
-            )
+            macro_key = generate_macro_key(inst.inst_type, macro_types[i], inst_seq_indexes[i])
             macro = project.macros.get(macro_key, None)
             if macro:
                 inst_macro_fields[i] = macro

@@ -43,7 +43,7 @@ class ProjectLoader:
     def execute(self, project, input_file) -> None:
         self.project = project
         self.current_pattern = 0
-
+        
         # TODO better exception handling
         try:
             with open(input_file, 'r') as file:
@@ -57,9 +57,10 @@ class ProjectLoader:
                     first_word = line.split()[0]
                     handle = self.dispatch.get(first_word, None)
                     if not handle:
+                        print("[W] Did not handle: {}".format(line))
                         continue
                     
-                    print(first_word)
+                    # print(first_word)
                     handle(project, line)
             
         except Exception as e:

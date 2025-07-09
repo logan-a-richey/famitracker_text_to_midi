@@ -4,8 +4,9 @@ class Project:
         self.title = "DefaultTitle"
         self.author = "DefaultAuthor"
         self.copyright = "DefaultCopyright"
-        self.comment = "Line1\nLine2\nLine3"
-        
+        # self.comment = "Line1\nLine2\nLine3"
+        self.comment = ""
+
         self.machine = 0
         self.framerate= 0
         self.expansion= 0
@@ -30,10 +31,12 @@ class Project:
         out += "{}\n".format(self.title)
         out += "{}\n".format(self.author)
         out += "{}\n".format(self.copyright)
+        out += "\n"
         
         out += divider
         out += "--- Comment ---\n"
         out += "{}\n".format(self.comment)
+        out += "\n"
         
         out += divider
         out += "--- Global Setting ---\n"
@@ -64,14 +67,14 @@ class Project:
 
         out += divider
         out += "--- Macros ---\n"
-        for macro in self.macros:
-            out += "{} {} : {}\n".format(macro.label, macro.name, macro.sequence)
+        for macro_key, macro_obj in self.macros.items():
+            out += "{} : {}\n".format(macro_key, macro_obj.sequence)
         out += "\n"
 
         out += divider
         out += "--- Instruments ---\n"
-        for inst in self.instruments:
-            out += "{} : {}\n".format(inst.index, inst.name) 
+        for inst_index, inst_obj in self.instruments.items():
+            out += "{} : {}\n".format(inst_index, inst_obj.name) 
         out += "\n"
 
         out += divider

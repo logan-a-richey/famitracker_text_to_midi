@@ -22,14 +22,16 @@ def main():
 
     project = Project()
     stage1 = ProjectLoader()
-    print("Showing!")
-    project.show()
-
     #stage2 = ProjectFormatter()
     #stage3 = ProjectExporter()
 
     stage1.execute(project, input_file)
-    #stage2.execute(project)
+    project.show()
+    
+    # stage2.execute(project)
+    
+    # stage3.execute(project, output_path)
+    
     return
 
 if __name__ == "__main__":

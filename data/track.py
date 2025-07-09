@@ -1,7 +1,12 @@
 # track.py
 
 class Track:
+    count = 0
+
     def __init__(self):
+        Track.count += 1
+        self.index = Track.count
+
         self.name = ""
         self.speed = 6
         self.tempo = 150

@@ -1,34 +1,28 @@
 # handler_registry.py
 
-from collections import defaultdict
-from typing import Callable, Dict, List
-
-# Global registry used during class scanning
-_registry: Dict[Callable, List[str]] = defaultdict(list)
+from typing import Callable, Dict
 
 def register(tag: str):
     def decorator(func: Callable):
-        _registry[func].append(tag)
+        if not hasattr(func, "_dispatch_tags"):
+            func._dispatch_tags = []
+        func._dispatch_tags.append(tag)
         return func
     return decorator
 
 def collect_handlers(instance) -> Dict[str, Callable]:
-    '''
-    Scans instance methods for functions with tags
-    registered using @register and builds a dispatch dict.
-    '''
     dispatch = {}
 
     for attr_name in dir(instance):
         attr = getattr(instance, attr_name)
-        if not callable(attr):
-            continue
 
-        tags = _registry.get(attr)
+        # Look at the underlying function object for bound methods
+        func = getattr(attr, "__func__", attr)
+        tags = getattr(func, "_dispatch_tags", None)
         if not tags:
             continue
 
         for tag in tags:
-            dispatch[tag] = attr
-
+            # print("[D] Registering \'{}\' -> {}".format(tag, attr.__name__))
+            dispatch[tag] = attr  # bind method to instance
     return dispatch

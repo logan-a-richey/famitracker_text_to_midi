@@ -9,7 +9,8 @@ class Macro:
         _loop: int, 
         _release: int, 
         _setting: int, 
-        _sequence: List[int]
+        _sequence: List[int],
+        _macro_key: any
     ):
         self.type = _type
         self.index = _index 
@@ -17,3 +18,4 @@ class Macro:
         self.release = _release
         self.setting = _setting
         self.sequence = _sequence
+        self.macro_key = _macro_key

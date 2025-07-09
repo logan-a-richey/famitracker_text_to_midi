@@ -23,14 +23,14 @@ class InfoHandler:
         key, val = regex_match.group("tag", "name")
         key = key.lower()
 
-        if not hasattr(self.project, key):
+        if not hasattr(project, key):
             raise ValueError("Invalid SongInformation key.")
 
-        setattr(self.project, key, val)
+        setattr(project, key, val)
 
     @register("COMMENT")
     # def handle_song_information(self, project: "Project", line: str):
-    def handle_song_information(self, project, line: str):
+    def handle_song_comment(self, project, line: str):
         ''' 
         Handle COMMENT metadata.
         Comment string is appended.
@@ -40,14 +40,14 @@ class InfoHandler:
             raise ValueError("Regex failed.")
         
         key, val = regex_match.group("tag", "name")
-        if self.project.comment:
-            self.project.comment += "\n{}".format(val)
+        if project.comment:
+            project.comment += "\n{}".format(val)
         else:
-            self.project.comment = val
+            project.comment = val
 
     @register("MACHINE")
-    @register("FRAMERATE=")
-    @register("EXPANSION=")
+    @register("FRAMERATE")
+    @register("EXPANSION")
     @register("VIBRATO")
     @register("SPLIT")
     @register("N163CHANNELS")
@@ -65,8 +65,8 @@ class InfoHandler:
         key = key.lower()
         val = int(val)
 
-        if not hasattr(self.project, key):
+        if not hasattr(project, key):
             raise ValueError("Invalid GlobalSettings key.")
 
-        setattr(self.project, key, val)
+        setattr(project, key, val)
 

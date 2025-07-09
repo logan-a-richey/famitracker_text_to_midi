@@ -1,9 +1,41 @@
 # instrument_handler.py
 
 import re
+from helpers.macro_types import MacroTypes
 from loader_handlers.handler_registry import register 
 from helpers.regex_patterns import RegexPatterns
 from data.instrument import Inst2A03, InstVRC6, InstVRC7, InstFDS, InstN163, InstS5B
+from helpers.generate_macro_key import generate_macro_key
+
+def load_macros(project, inst):
+    """ Binds <Macro> from <Project> to <Instrument> if it exists. """
+    macro_types = [
+        MacroTypes.VOL, 
+        MacroTypes.ARP, 
+        MacroTypes.PIT, 
+        MacroTypes.HPI, 
+        MacroTypes.DUT
+    ]
+    inst_seq = [
+        inst.macros.seq_vol, 
+        inst.macros.seq_arp, 
+        inst.macros.seq_pit, 
+        inst.macros.seq_hpi, 
+        inst.macros.seq_dut 
+    ]
+    inst_mac = [
+        inst.macros.mac_vol, 
+        inst.macros.mac_arp, 
+        inst.macros.mac_pit, 
+        inst.macros.mac_hpi, 
+        inst.macros.mac_dut 
+    ]
+    for i in range(5):
+        macro_key = generate_macro_key(inst.inst_type, macro_types[i], inst_seq[i])
+        macro_obj = project.macros.get(macro_key, None)
+        if not macro_obj:
+            continue
+        inst_mac[i] = macro_obj        
 
 class InstrumentHandler:
     def __init__(self, project_loader):
@@ -12,7 +44,7 @@ class InstrumentHandler:
     @register("INST2A03")
     # def handle_inst_2a03(self, project: "Project", line: str):
     def handle_inst_2a03(self, project, line: str):
-        regex_match = RegexPatterns.INST_2A03.match(line)
+        regex_match = RegexPatterns.INST_BASIC.match(line)
         if not regex_match:
             raise ValueError("Regex failed.")
         
@@ -22,16 +54,15 @@ class InstrumentHandler:
         inst_name = regex_match.group("name")
         
         inst_obj = Inst2A03(inst_index, inst_name, seq_vol, seq_arp, seq_pit, seq_hpi, seq_dut)
-        
-        # TODO
-        # self.load_macro(inst_obj)
-        
+
+        load_macros(project, inst_obj)
+
         project.instruments[inst_index] = inst_obj
     
     @register("INSTVRC6")
     # def handle_inst_vrc6(self, project: "Project", line: str):
     def handle_inst_vrc6(self, project, line: str):
-        regex_match = RegexPatterns.INST_VRC6.match(line)
+        regex_match = RegexPatterns.INST_BASIC.match(line)
         if not regex_match:
             raise ValueError("Regex failed.")
         
@@ -42,8 +73,7 @@ class InstrumentHandler:
         
         inst_obj = InstVRC6( inst_index, inst_name, seq_vol, seq_arp, seq_pit, seq_hpi, seq_dut)
         
-        #TODO
-        # self.load_macro(inst_obj)
+        load_macros(project, inst_obj)
         
         project.instruments[inst_index] = inst_obj
     
@@ -66,28 +96,28 @@ class InstrumentHandler:
 
     @register("INSTN163")
     def handle_inst_n163(self, project,  line: str):
-        ''' Namco instrument handler '''
+        """ Namco instrument handler """
         regex_match = RegexPatterns.INST_N163.match(line)
         if not regex_match:
             raise ValueError("Regex failed.")
         tag = regex_match.group("tag")
-        num_fields = ["index", "seq_vol", "seq_arp", "seq_pit", "seq_hpi", "seq_dut", "w_size", "w_pos", "w_count", ]
-        index, seq_vol, seq_arp, seq_pit, seq_hpi, seq_dut, w_size, w_pos, w_count = \
-            list(map(int, regex_match.group(*num_fields)))
+        num_fields = ["index", "seq_vol", "seq_arp", "seq_pit", "seq_hpi", "seq_dut", "w_size", "w_pos", "w_count"]
+        index, seq_vol, seq_arp, seq_pit, seq_hpi, seq_dut, w_size, w_pos, w_count = list(map(int, regex_match.group(*num_fields)))
         name = regex_match.group("name")
 
-        inst_obj = InstN163(
-            index, name, 
-            seq_vol, seq_arp, seq_pit, seq_hpi, seq_dut, 
-            w_size, w_pos, w_count
-        )
-        self.load_macro(inst_obj)
+        inst_obj = InstN163( index, name, seq_vol, seq_arp, seq_pit, seq_hpi, seq_dut, w_size, w_pos, w_count)
+        
+        load_macros(project, inst_obj)
+        
         project.instruments[index] = inst_obj
 
     @register("INSTFDS")
     # def handle_inst_fds(self, project: "Project", line: str):
     def handle_inst_fds(self, project, line: str):
-        ''' FDS Instrument handler '''
+        """ 
+        FDS Instrument handler 
+        Note that FDS is the only instrument in whichi Macros are added after instantiation 
+        """
         regex_match = RegexPatterns.INST_FDS.match(line)
         if not regex_match:
             raise ValueError("Regex failed.")
@@ -99,13 +129,12 @@ class InstrumentHandler:
 
         inst_obj = InstFDS()
         self.project.instruments[index] = inst_obj
-        pass
-        
+
     @register("INSTS5B")
     # def handle_inst_s5b(self, project: "Project", line: str):
     def handle_inst_s5b(self, project, line: str):
-        ''' Sunsoft instrument handler '''
-        regex_match = RegexPatterns.INST_2A03.match(line)
+        """ Sunsoft instrument handler """
+        regex_match = RegexPatterns.INST_BASIC.match(line)
         if not regex_match:
             raise ValueError("Regex failed.")
         
@@ -116,7 +145,6 @@ class InstrumentHandler:
         
         inst_obj = InstS5B(inst_index, inst_name, seq_vol, seq_arp, seq_pit, seq_hpi, seq_dut)
         
-        # TODO
-        # self.load_macro(inst_obj)
+        load_macros(project, inst_obj)
         
         project.instruments[inst_index] = inst_obj
