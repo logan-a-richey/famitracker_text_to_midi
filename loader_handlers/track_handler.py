@@ -4,6 +4,7 @@ import re
 from helpers.regex_patterns import RegexPatterns
 from loader_handlers.handler_registry import register
 from data.track import Track
+from helpers.generate_token_key import generate_token_key
 
 class TrackHandler:
     def __init__(self, project_loader):
@@ -11,61 +12,65 @@ class TrackHandler:
 
     @register("TRACK")
     def handle_track(self, project, line):
-        pass
+        regex_match = RegexPatterns.TRACK.match(line)
+        if not regex_match:
+            raise ValueError("Regex failed.")
+        
+        t = Track()
+        
+        args = ["num_rows", "speed", "tempo"]
+        num_rows, speed, tempo = list(map(int, regex_match.group(*args)))
+        name = regex_match.group("name")
+
+        t.num_rows = num_rows
+        t.name = name 
+        t.speed = speed
+        t.tempo = tempo
+
+        project.tracks.append(t)
     
     @register("COLUMNS")
     def handle_columns(self, project, line):
-        pass
+        regex_match = RegexPatterns.COLUMNS.match(line)
+        if not regex_match:
+            raise ValueError("Regex failed.")
+        
+        t = project.tracks[-1]
+
+        # TODO deo this in regex
+        eff_cols = list(map(int, line.split(":")[1].strip().split()))
+        num_cols = len(eff_cols)
+        
+        t.eff_cols = eff_cols
+        t.num_cols = num_cols
     
     @register("ORDER")
     def handle_order(self, project, line):
-        pass
+        t = project.tracks[-1]
+        
+        field_key = line.split()[1]
+        field_lst = line.split(":")[1].strip().split()
+        key = int(field_key, 16)
+        lst = list(map(lambda x: int(x, 16), field_lst))
+
+        t.orders[key] = lst
     
     @register("PATTERN")
     def handle_pattern(self, project, line):
-        pass
+        # TODO deo this in regex
+        field_pat = line.split()[1]
+        self.current_pattern = int(field_pat, 16)
     
     @register("ROW")
     def handle_row(self, project, line):
-        pass
+        # TODO deo this in regex
+        t = project.tracks[-1]
+        
+        row = int(line.split()[1], 16)
+        tokens = [token.strip() for token in line.split(":")[1:]]
 
-#   def handle_track(self, line: str) -> None:
-#       # TODO regex
-#       # TODO load data
-#
-#       new_track = Track()
-#       self.project.tracks.append(new_track)
-#       pass
-#   
-#   def handle_columns(self, line: str) -> None:
-#       if not self.project.tracks:
-#           raise ValueError("Track not initialized")
-#       current_track = self.projet.tracks[-1]
-        # TODO regex
-        # TODO load data
-#       pass
-
-#   def handle_order(self, line: str) -> None:
-#       if not self.project.tracks:
-#           raise ValueError("Track not initialized")
-#       current_track = self.projet.tracks[-1]
-#       # TODO regex
-#       # TODO load data
-#       pass
-
-#   def handle_pattern(self, line: str) -> None:
-#       if not self.project.tracks:
-#           raise ValueError("Track not initialized")
-#       current_track = self.projet.tracks[-1]
-#       # TODO regex
-#       # TODO load data
-#       pass
-
-#   def handle_row(self, line: str) -> None:
-#       if not self.project.tracks:
-#           raise ValueError("Track not initialized")
-#       current_track = self.projet.tracks[-1]
-#       # TODO regex
-#       # TODO load data
-#       pass
+        for col, token in enumerate(tokens):
+            # TODO check for null token
+            token_key = generate_token_key(self.current_pattern, row, col)
+            t.tokens[token_key] = token
 

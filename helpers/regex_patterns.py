@@ -67,5 +67,33 @@ class RegexPatterns:
         (?P<w_count>\d+)\s*        
         \"(?P<name>.*)\"        
         ''', re.VERBOSE)
+    TRACK = re.compile(r'''
+        ^(?P<tag>TRACK)\s+
+        (?P<num_rows>\d+)\s+
+        (?P<speed>\d+)\s+
+        (?P<tempo>\d+)\s*
+        \"(?P<name>.*)\"
+        ''', re.VERBOSE)
+    COLUMNS = re.compile(r'''
+        ^(?P<tag>COLUMNS)
+        \s*\:\s*
+        (?P<data>.*)
+        ''', re.VERBOSE)
+    ORDER = re.compile(r'''
+        ^(?P<tag>ORDER)\s+
+        (?P<frame>[0-9A-F]{2})
+        \s*\:\s*
+        (?P<data>.*)
+        ''', re.VERBOSE)
+    PATTERN = re.compile(r'''
+        ^(?P<tag>PATTERN)\s+
+        (?P<val>[0-9A-F]{2})
+        ''', re.VERBOSE)
+    ROW = re.compile(r'''
+        ^(?P<tag>ROW)\s+
+        (?P<row>[0-9A-F]{2})
+        \s*\:\s*
+        (?P<data>.*)
+        ''', re.VERBOSE)
     INT_LIST = re.compile(r'\-?\d+')
     HEX_LIST = re.compile(r'[0-9A-F]{2}')

@@ -78,10 +78,10 @@ class Project:
         out += "\n"
 
         out += divider
-        out += "--- Tracks ---"
+        out += "--- Tracks ---\n"
         for track in self.tracks:
             out += "Track {} : {}\n".format(track.index, track.name)
-        out += "\n"
+        # out += "\n"
     
         print(out)
 
