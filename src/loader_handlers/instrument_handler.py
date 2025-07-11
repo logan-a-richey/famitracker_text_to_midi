@@ -1,11 +1,12 @@
 # instrument_handler.py
 
 import re
-from helpers.macro_types import MacroTypes
+from helpers.constants import MacroTypes 
+from helpers.helper_functions import generate_macro_key 
+
 from loader_handlers.handler_registry import register 
 from helpers.regex_patterns import RegexPatterns
 from data.instrument import Inst2A03, InstVRC6, InstVRC7, InstFDS, InstN163, InstS5B
-from helpers.generate_macro_key import generate_macro_key
 
 def load_macros(project, inst):
     """ Binds <Macro> from <Project> to <Instrument> if it exists. """

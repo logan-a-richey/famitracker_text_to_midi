@@ -6,9 +6,9 @@ from data.key_dpcm import KeyDPCM
 from data.macro import Macro 
 
 from helpers.regex_patterns import RegexPatterns
-from helpers.macro_types import MacroTypes
-from helpers.inst_types import InstTypes
-from helpers.generate_macro_key import generate_macro_key 
+
+from helpers.constants import MacroTypes, InstTypes 
+from helpers.helper_functions import generate_macro_key 
 
 class SpecialHandler:
     def __init__(self):
@@ -119,8 +119,7 @@ class SpecialHandler:
             inst_lookup.mac_vol = macro_obj
         elif macro_type == MacroTypes.ARP:
             inst_lookup.mac_arp = macro_obj
-        elif macro_type == MacrpTypes.PIT:
+        elif macro_type == MacroTypes.PIT:
             inst_lookup.mac_pit = macro_obj
         else:
             return
-

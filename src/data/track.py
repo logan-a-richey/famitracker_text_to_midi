@@ -16,7 +16,8 @@ class Track:
 
         self.orders = {}
         self.tokens = {}
-    
+        self.lines = []
+
     def __str__(self):
         return "<{}>".format(self.__class__.__name__)
 

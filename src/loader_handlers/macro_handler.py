@@ -1,9 +1,9 @@
 # macro_handler.py
 
 from helpers.regex_patterns import RegexPatterns
-from helpers.macro_types import MacroTypes
-from helpers.inst_types import InstTypes
-from helpers.generate_macro_key import generate_macro_key 
+
+from helpers.constants import MacroTypes, InstTypes 
+from helpers.helper_functions import generate_macro_key 
 
 from data.macro import Macro 
 

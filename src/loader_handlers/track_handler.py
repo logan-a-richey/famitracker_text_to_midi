@@ -4,7 +4,9 @@ import re
 from helpers.regex_patterns import RegexPatterns
 from loader_handlers.handler_registry import register
 from data.track import Track
-from helpers.generate_token_key import generate_token_key
+from helpers.helper_functions import generate_token_key
+
+NULL_TOKEN = re.compile(r'^[\.\s]*$')
 
 class TrackHandler:
     def __init__(self):
@@ -72,6 +74,11 @@ class TrackHandler:
 
         for col, token in enumerate(tokens):
             # TODO check for null token
+            null_token_match = NULL_TOKEN.match(token)
+            if null_token_match:
+                #print("NULL TOKEN: {}".format(token))
+                continue
+
             token_key = generate_token_key(self.current_pattern, row, col)
             t.tokens[token_key] = token
 

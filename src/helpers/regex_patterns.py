@@ -123,3 +123,13 @@ class RegexPatterns:
         ''', re.VERBOSE)
     INT_LIST = re.compile(r'\-?\d+')
     HEX_LIST = re.compile(r'[0-9A-F]{2}')
+
+    NOTE_ON = re.compile(r'^[A-G][\-#b]\d')
+    NOTE_OFF = re.compile(r'^\-{3}')
+    NOTE_RELEASE = re.compile(r'^\={3}')
+    NOISE_ON = re.compile(r'#\-[0-9A-F]')
+    ECHO_BUFFER = re.compile(r'^\^\-[0-3]')
+
+    BXX = re.compile(r'B[0-9A-F]{2}')
+    CXX = re.compile(r'C[0-9A-F]{2}')
+    DXX = re.compile(r'D[0-9A-F]{2}')

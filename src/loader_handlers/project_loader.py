@@ -3,9 +3,8 @@
 import re
 from typing import Optional, Dict, List, Callable 
 
-from helpers.macro_types import MacroTypes 
-from helpers.inst_types import InstTypes
-from helpers.generate_macro_key import generate_macro_key
+# from helpers.constants import MacroTypes, InstTypes 
+# from helpers.helper_functions import generate_macro_key 
 
 from data.macro import Macro 
 from data.instrument import Inst2A03, InstVRC6, InstVRC7, InstFDS, InstN163, InstS5B
@@ -46,7 +45,7 @@ class ProjectLoader:
         ]:
             self.dispatch.update(collect_handlers(handler))       
 
-    def execute(self, project, input_file) -> None:
+    def load_project(self, project, input_file) -> None:
         # TODO better exception handling
         #try:
         with open(input_file, 'r') as file:
