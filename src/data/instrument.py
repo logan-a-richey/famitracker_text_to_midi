@@ -24,7 +24,14 @@ class MacroBinding:
         self.mac_pit = None
         self.mac_hpi = None
         self.mac_dut = None
-        
+
+    def __str__(self):
+        #return "{} {} {} {} {}".format( int(bool(self.mac_vol)), int(bool(self.mac_arp)), int(bool(self.mac_pit)), int(bool(self.mac_hpi)), int(bool(self.mac_dut)))
+        return "<{}>".format(self.__class__.__name__)
+
+    def __repr__(self):
+        return self.__str__()
+
 class InstBase:
     def __init__(self, 
         _index: int, 
@@ -33,6 +40,9 @@ class InstBase:
         self.index = _index
         self.name = _name
         self.inst_type = InstTypes.Unknown
+    
+    def __str__(self):
+        return "<{}> {}".format(self.__class__.__name__, self.__dict__)
 
 class Inst2A03(InstBase):
     ''' Data structure for 2A03 Instrument '''
@@ -136,6 +146,6 @@ class InstFDS(InstBase):
 
         self.mac_vol = None
         self.mac_arp = None
-        self.mac_hpi = None
+        self.mac_pit = None
 
         self.inst_type = InstTypes.InstFDS

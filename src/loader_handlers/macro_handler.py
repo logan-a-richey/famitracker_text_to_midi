@@ -10,8 +10,8 @@ from data.macro import Macro
 from loader_handlers.handler_registry import register
 
 class MacroHandler:
-    def __init__(self, project_loader):
-        self.project_loader = project_loader
+    def __init__(self):
+        pass
 
     @register("MACRO")
     @register("MACROVRC6")

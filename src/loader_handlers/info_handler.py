@@ -4,8 +4,8 @@ from loader_handlers.handler_registry import register
 from helpers.regex_patterns import RegexPatterns
 
 class InfoHandler:
-    def __init__(self, project_loader):
-        self.project_loader = project_loader
+    def __init__(self):
+        pass
 
     @register("TITLE")
     @register("AUTHOR")

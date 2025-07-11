@@ -81,7 +81,11 @@ class Project:
         out += "--- Tracks ---\n"
         for track in self.tracks:
             out += "Track {} : {}\n".format(track.index, track.name)
-        # out += "\n"
     
         print(out)
 
+    def __str__(self):
+        return "<{}>".format(self.__class__.__name__)
+
+    def __repr__(self):
+        return self.__str__()

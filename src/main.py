@@ -26,8 +26,11 @@ def main():
     #stage3 = ProjectExporter()
 
     stage1.execute(project, input_file)
-    project.show()
     
+    #project.show()
+    #for key, val in project.instruments.items():
+    #    print("Index: {} | {}".format(key, val))
+
     # stage2.execute(project)
     
     # stage3.execute(project, output_path)

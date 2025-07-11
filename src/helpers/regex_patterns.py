@@ -11,6 +11,12 @@ class RegexPatterns:
         ^(?P<tag>\w+)\s+       
         (?P<value>\d+)           
         ''', re.VERBOSE)
+    DPCM_DEF = re.compile('''
+        ^(?P<tag>DPCMDEF)\s+
+        (?P<index>\d+)\s+
+        (?P<size>\d+)\s*
+        \"(?P<name>.*)\"
+        ''', re.VERBOSE)
     MACRO = re.compile(r'''
         (?P<tag>\w+)\s+        
         (?P<type>\-?\d+)\s+     
@@ -66,6 +72,26 @@ class RegexPatterns:
         (?P<w_pos>\d+)\s+        
         (?P<w_count>\d+)\s*        
         \"(?P<name>.*)\"        
+        ''', re.VERBOSE)
+    KEY_DPCM = re.compile(r'''
+        ^(?P<tag>KEYDPCM)\s+
+        (?P<inst>\-?\d+)\s+
+        (?P<octave>\-?\d+)\s+
+        (?P<note>\-?\d+)\s+
+        (?P<sample>\-?\d+)\s+
+        (?P<pitch>\-?\d+)\s+
+        (?P<loop>\-?\d+)\s+
+        (?P<loop_point>\-?\d+)\s+
+        (?P<delta>\-?\d+)
+        ''', re.VERBOSE)
+    FDS_MACRO = re.compile(r'''
+        ^(?P<tag>FDSMACRO)\s+
+        (?P<inst>\d+)\s+
+        (?P<type>\d+)\s+
+        (?P<loop>\-?\d+)\s+
+        (?P<release>\-?\d+)\s+
+        (?P<setting>\-?\d+)\s*\:\s*
+        (?P<lst>[0-9\s]*)
         ''', re.VERBOSE)
     TRACK = re.compile(r'''
         ^(?P<tag>TRACK)\s+

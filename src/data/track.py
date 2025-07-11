@@ -16,3 +16,9 @@ class Track:
 
         self.orders = {}
         self.tokens = {}
+    
+    def __str__(self):
+        return "<{}>".format(self.__class__.__name__)
+
+    def __repr__(self):
+        return self.__str__()

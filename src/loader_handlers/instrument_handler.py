@@ -38,8 +38,8 @@ def load_macros(project, inst):
         inst_mac[i] = macro_obj        
 
 class InstrumentHandler:
-    def __init__(self, project_loader):
-        self.project_loader = project_loader
+    def __init__(self):
+        pass
 
     @register("INST2A03")
     # def handle_inst_2a03(self, project: "Project", line: str):
@@ -87,7 +87,7 @@ class InstrumentHandler:
         inst_tag = regex_match.group("tag")
         inst_index, inst_patch = list(map(int, regex_match.group("index", "patch")))
         num_fields = ["r0", "r1", "r2", "r3", "r4", "r5", "r5", "r6", "r7"]
-        inst_registers = list(map(int, regex_match.group(*num_fields)))
+        inst_registers = list(map(lambda x: int(x, 16), regex_match.group(*num_fields)))
         inst_name = regex_match.group("name")
         
         inst_obj = InstVRC7(inst_index, inst_name, inst_patch, inst_registers)
@@ -126,9 +126,10 @@ class InstrumentHandler:
 
         index, mod_enable, mod_speed, mod_depth, mod_delay = \
             list(map(int, regex_match.group(*num_fields)))
+        name = regex_match.group("name")
 
-        inst_obj = InstFDS()
-        self.project.instruments[index] = inst_obj
+        inst_obj = InstFDS(index, name, mod_enable, mod_speed, mod_depth, mod_depth)
+        project.instruments[index] = inst_obj
 
     @register("INSTS5B")
     # def handle_inst_s5b(self, project: "Project", line: str):

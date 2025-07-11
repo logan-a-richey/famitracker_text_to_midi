@@ -23,6 +23,6 @@ def collect_handlers(instance) -> Dict[str, Callable]:
             continue
 
         for tag in tags:
-            # print("[D] Registering \'{}\' -> {}".format(tag, attr.__name__))
+            #print("[D] Registering \'{}\' -> {}".format(tag, attr.__name__))
             dispatch[tag] = attr  # bind method to instance
     return dispatch

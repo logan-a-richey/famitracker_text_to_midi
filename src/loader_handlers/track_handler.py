@@ -7,8 +7,9 @@ from data.track import Track
 from helpers.generate_token_key import generate_token_key
 
 class TrackHandler:
-    def __init__(self, project_loader):
-        self.project_loader = project_loader 
+    def __init__(self):
+        # self.project_loader = project_loader 
+        pass
 
     @register("TRACK")
     def handle_track(self, project, line):
