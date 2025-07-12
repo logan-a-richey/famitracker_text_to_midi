@@ -14,6 +14,7 @@ class InstBase:
         self.inst_type = InstTypes.OTHER
     
     def __str__(self):
+        ''' Make printable type '''
         return "<{}> {}".format(self.__class__.__name__, self.__dict__)
     
     def __repr__(self):

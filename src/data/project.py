@@ -23,6 +23,7 @@ class Project:
         self.tracks = []
 
     def show(self):
+        ''' Make printable type '''
         out = ""
         divider = "{}\n".format("-" * 80)
 
@@ -86,6 +87,7 @@ class Project:
         print(out)
 
     def __str__(self):
+        ''' Make printable type '''
         return "<{}>".format(self.__class__.__name__)
 
     def __repr__(self):

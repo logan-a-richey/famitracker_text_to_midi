@@ -23,6 +23,7 @@ class MacroBinding:
         self.mac_dut = None
 
     def __str__(self):
+        ''' Make printable type '''
         #return "{} {} {} {} {}".format( int(bool(self.mac_vol)), int(bool(self.mac_arp)), int(bool(self.mac_pit)), int(bool(self.mac_hpi)), int(bool(self.mac_dut)))
         return "<{}>".format(self.__class__.__name__)
 

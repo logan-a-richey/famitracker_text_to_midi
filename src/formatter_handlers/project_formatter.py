@@ -6,7 +6,6 @@ from helpers.constants import TokenType, ControlFlowType
 from helpers.regex_patterns import RegexPatterns
 from data.echo_buffer import  EchoBuffer 
 
-
 class ProjectFormatter:
     def __init__(self):
         self.track = None
@@ -16,6 +15,19 @@ class ProjectFormatter:
         self.echo_buffers = []
 
     def classify_token_type(self, token: str) -> int:
+        '''
+        Returns the corresponding event type of a FamiTracker note token.
+        
+        EVENT_TYPE:     | STRING        | STRING DESCRIPTION
+        ----------------+---------------+---------------------------------------
+        NOTE_ON:        | A-4, C#5, Bb4 | Note letter, accidental, octave
+        NOTE_OFF:       | ---           | 3 dashes 
+        NOTE_RELEASE:   | ===           | 3 equals
+        NOTE_NOISE:     | #-0, #-F      | # - hex
+        ECHO_BUFFER:    | ^-0, ^-3      | ^ - number
+        OTHER:          | ..., xyz      | ... or invalid
+        '''
+        
         matchers = [
             RegexPatterns.NOTE_ON,
             RegexPatterns.NOTE_OFF,
@@ -23,7 +35,7 @@ class ProjectFormatter:
             RegexPatterns.NOISE_ON,
             RegexPatterns.ECHO_BUFFER
         ]
-        return_fields = [
+        fields = [
             TokenType.NOTE_ON,
             TokenType.NOTE_OFF,
             TokenType.NOTE_RELEASE,
@@ -31,15 +43,20 @@ class ProjectFormatter:
             TokenType.ECHO_BUFFER
         ]
         
-        # TODO - use zip instead
-        for i in range(len(matchers)):
-            regex_match = matchers[i].match(token)
+        for matcher, field in zip(matchers, fields):
+            regex_match = matcher.match(token)
             if regex_match:
-                return return_fields[i]
+                return field
 
         return TokenType.OTHER
     
     def handle_echo_buffer(self, token: str, col: int):
+        ''' 
+        Given that token is an EchoBuffer event, replace ^-X with the correct substring from EchoBuffer 
+        If there is no valid substring, replace ^-X will a null token "..."
+        Return the updated substring.
+        '''
+
         echo_value = int(token[2])
         echo_token = self.echo_buffers[col].peek(echo_value)
         if not echo_token:
@@ -48,6 +65,14 @@ class ProjectFormatter:
         return "{}{}".format(echo_token[:3], token[3:])
 
     def handle_control_flow(self, line: str):
+        '''
+        BXX, CXX, and DXX effects can cause the Track to jump around in the score.
+        BXX will go to Order XX at Row 0. If XX is not a valid order, go to last Order.
+        CXX ends the song. We simply return. The seen_it loop will cause the song to end.
+        DXX goes to the next Order at Row XX. Row XX is bounded between 0 and num_rows - 1.
+        If no match, return and continue scanning the order as usual.
+        '''
+
         bxx_matches = RegexPatterns.BXX.findall(line)
         cxx_matches = RegexPatterns.CXX.findall(line)
         dxx_matches = RegexPatterns.DXX.findall(line)
@@ -90,14 +115,17 @@ class ProjectFormatter:
                 token_key = generate_token_key(pattern_list[j], i, j)
                 token = self.track.tokens.get(token_key, None)
                 if not token:
-                    null_token = "... .. .{}".format("..." * self.track.eff_cols[j])
+                    null_token = "... .. .{}".format(" ..." * self.track.eff_cols[j])
                     tokens.append(null_token)
                     continue
 
                 event_type = self.classify_token_type(token)
                 if event_type == TokenType.ECHO_BUFFER:
                     token = self.handle_echo_buffer(token, j)
-                
+
+                if event_type in [TokenType.NOISE_ON, TokenType.NOTE_OFF, TokenType.NOTE_ON, TokenType.ECHO_BUFFER]:
+                    self.echo_buffers[j].push_front(token[:3])
+
                 tokens.append(token)
             # end col
             
@@ -128,6 +156,9 @@ class ProjectFormatter:
 
             seen_it.add(self.target_order)
             self.scan_target_order()
+        
+        for line in track.lines:
+            print(line)
         return
     
     def format_project(self, project):

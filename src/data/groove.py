@@ -13,6 +13,7 @@ class Groove:
         self.data = _data
     
     def __str__(self):
+        ''' Make printable type '''
         return "<{}>".format(self.__class__.__name__)
 
     def __repr__(self):

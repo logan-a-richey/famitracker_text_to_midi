@@ -21,6 +21,7 @@ class KeyDPCM:
         self.delta = delta
     
     def __str__(self):
+        ''' Make printable type '''
         return "<{}>".format(self.__class__.__name__)
 
     def __repr__(self):
