@@ -1,6 +1,11 @@
 # project.py
 
 class Project:
+    ''' 
+    Contains FamiTracker project state.
+    Contains DPCM, Grooves, Macros, Instruments, and Tracks. 
+    '''
+
     def __init__(self):
         self.title = "DefaultTitle"
         self.author = "DefaultAuthor"

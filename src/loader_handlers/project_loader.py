@@ -1,5 +1,12 @@
 # project_loader.py
 
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(levelname)s] %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 import re
 from typing import Optional, Dict, List, Callable 
 
@@ -18,6 +25,17 @@ from loader_handlers.special_handler import SpecialHandler
 from loader_handlers.handler_registry import collect_handlers
 
 class ProjectLoader:
+    ''' 
+    Main helper class to parse lines from a FamiTracker text export file.
+    Contains several helper classes that each contain additional line handler methods.
+    Each line handler adds information to Project class.
+
+    New methods can be added to the dispatch table using thje @register("TAG_NAME") decorator.
+    
+    NOTE: Be sure that every function and TAG_NAME is unique.
+    Otherwise, Python will overwrite the function and that method will not be added to the dispatch.
+    '''
+
     def __init__(self):
         self.info_handler = InfoHandler()
         self.dpcm_handler = DPCMHandler()
@@ -43,27 +61,32 @@ class ProjectLoader:
             self.dispatch.update(collect_handlers(handler))       
 
     def load_project(self, project, input_file) -> None:
-        # TODO better exception handling
-        #try:
-        with open(input_file, 'r') as file:
-            for line in file:
-                line = line.strip()
-                if not line:
-                    continue
-                if line[0] == '#':
-                    continue
-                
-                first_word = line.split()[0]
-                handle = self.dispatch.get(first_word, None)
-                if not handle:
-                    print("[W] Did not handle: {}".format(line))
-                    continue
-                
-                # print(first_word)
-                handle(project, line)
-            
-        #except Exception as e:
-        #    # for file not open error
-        #    print("[E] {}".format(e))
-        #    exit(1)
-    
+        """Main method to call"""
+
+        try:
+            with open(input_file, 'r') as file:
+                for line_num, line in enumerate(file, 1):
+                    line = line.strip()
+                    if not line or line.startswith('#'):
+                        continue
+
+                    first_word = line.split()[0]
+                    handle = self.dispatch.get(first_word)
+
+                    if not handle:
+                        logger.warn("Line {}: Unhandled line: {}".format(line_num, line))
+                        continue
+
+                    try:
+                        handle(project, line)
+                    except Exception as e:
+                        logger.warn("Line {}: Handler error: {}".format(line_num, e))
+
+        except FileNotFoundError:
+            logger.error("File not found: {}".format(input_file))
+        except PermissionError:
+            logger.error("Permission denied: {}".format(input_file))
+        except OSError as e:
+            logger.error("OS error while opening file '{}': {}".format(input_file, e))
+        except Exception as e:
+            logger.error("Something unexpected has happened: {}".format(e))

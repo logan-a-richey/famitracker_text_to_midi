@@ -9,7 +9,8 @@ from helpers.regex_patterns import RegexPatterns
 from data.instrument import Inst2A03, InstVRC6, InstVRC7, InstFDS, InstN163, InstS5B
 
 def load_macros(project, inst):
-    """ Binds <Macro> from <Project> to <Instrument> if it exists. """
+    ''' Binds <Macro> from <Project> to <Instrument> if it exists. '''
+
     macro_types = [
         MacroTypes.VOL, 
         MacroTypes.ARP, 
@@ -17,26 +18,29 @@ def load_macros(project, inst):
         MacroTypes.HPI, 
         MacroTypes.DUT
     ]
-    inst_seq = [
+    inst_sequences = [
         inst.macros.seq_vol, 
         inst.macros.seq_arp, 
         inst.macros.seq_pit, 
         inst.macros.seq_hpi, 
         inst.macros.seq_dut 
     ]
-    inst_mac = [
+    inst_macros = [
         inst.macros.mac_vol, 
         inst.macros.mac_arp, 
         inst.macros.mac_pit, 
         inst.macros.mac_hpi, 
         inst.macros.mac_dut 
     ]
-    for i in range(5):
-        macro_key = generate_macro_key(inst.inst_type, macro_types[i], inst_seq[i])
+    
+    for macro_type, inst_sequence, inst_macro in zip(macro_types, inst_sequences, inst_macros):
+        macro_key = generate_macro_key(inst.inst_type, macro_type, inst_sequence)
         macro_obj = project.macros.get(macro_key, None)
         if not macro_obj:
             continue
-        inst_mac[i] = macro_obj        
+        
+        inst_macro = macro_obj        
+
 
 class InstrumentHandler:
     def __init__(self):

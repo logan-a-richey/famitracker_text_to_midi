@@ -5,6 +5,12 @@ from helpers.constants import InstTypes
 from data.macro_binding import MacroBinding
 
 class InstBase:
+    '''
+    Instrument Base class.
+    Contains `name` and `index` since those are common to all instruments.
+    Contains __str__ and __repr__ methods to make all instruments printable types.
+    '''
+
     def __init__(self, 
         _index: int, 
         _name: str
@@ -21,7 +27,12 @@ class InstBase:
         return self.__str__()
 
 class Inst2A03(InstBase):
-    ''' Data structure for 2A03 Instrument '''
+    ''' 
+    Data structure for 2A03 Instrument 
+    Has Macros.
+    Has KeyDPCM support.
+    '''
+    
     def __init__(self, 
         _index: int,
         _name: str,
@@ -37,7 +48,14 @@ class Inst2A03(InstBase):
         self.inst_type = InstTypes.INST_2A03
 
 class InstVRC6(InstBase):
-    ''' Data structure for VRC6 Instrument '''
+    ''' 
+    Data structure for VRC6 Instrument 
+    Has Macros.
+
+    In more recent versions of FamiTracker, VRC6 can also include KeyDPCM.
+    For strictness and compliance with official FamiTracker, I have left it out.
+    '''
+
     def __init__(self, 
         _index: int,
         _name: str,
@@ -52,7 +70,12 @@ class InstVRC6(InstBase):
         self.inst_type = InstTypes.INST_VRC6
 
 class InstN163(InstBase):
-    ''' Data structure for Namco Instrument '''
+    ''' 
+    Data structure for Namco Instrument 
+    Has Macros.
+    Has additional Namco settings.
+    '''
+
     def __init__(self, 
         _index: int,
         _name: str,
@@ -74,7 +97,12 @@ class InstN163(InstBase):
         self.inst_type = InstTypes.INST_N163
 
 class InstVRC7(InstBase):
-    ''' Data structure for FM Instrument '''
+    ''' 
+    Data structure for FM Instrument 
+    Has additional FM data such as patch and registers. 
+    These control the frequency modulation of the instrument.
+    '''
+    
     def __init__(self,
         _index: int,
         _name: str,
@@ -87,7 +115,17 @@ class InstVRC7(InstBase):
         self.inst_type = InstTypes.INST_VRC7 
     
 class InstS5B(InstBase):
-    ''' Data structure for Sunsoft Instrument '''
+    ''' 
+    Data structure for Sunsoft Instrument 
+    Has Macros.
+    Sunsoft instrument is unique since it can also behave as a Noise instrument. 
+    This is determined by Macros. 
+    
+    Since the Macro needed to be compliant with 2A03 and others, 
+    the authors of FamiTracker used some 2's compliment magic to denote the state of S5B instruments.
+    This information should be included in the MacroBinding object.
+    '''
+
     def __init__(self,
         _index: int,
         _name: str,
@@ -102,7 +140,16 @@ class InstS5B(InstBase):
         self.inst_type = InstTypes.INST_S5B
 
 class InstFDS(InstBase):
-    ''' Data structure for FDS wavetable Instrument '''
+    ''' 
+    Data structure for FDS wavetable Instrument.
+    
+    Has Macros. (Note that FDS should not have HPI or DUT macros)
+    Does not have a MacroBinding object attached for this reason.
+    Macros are attached individually.
+
+    Has additional FDS information such as fds_wave and fds_mod.
+    '''
+
     def __init__(self,
         _index: int,
         _name: str,

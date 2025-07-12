@@ -1,6 +1,8 @@
 # dpcm.py
 
 class DPCM:
+    ''' Data type holding DPCM sample information '''
+
     def __init__(self, 
         _index: int,
         _size: int, 

@@ -8,6 +8,29 @@ from data.echo_buffer import  EchoBuffer
 
 class ProjectFormatter:
     def __init__(self):
+        ''' 
+        Stores Track state while formatting.
+        Famitracker Orders are denoted by:
+        ORDER aa : bb cc dd ... (where aa, bb, cc, dd, etc. are base16 numbers)
+        aa is the order number.
+        order aa contain columns from other orders:
+        bb represents the token col from order bb.         
+        cc represents the token col from order cc. and so on...
+        there is a variadic number of columns denoted by the COLUMNS section in the Famitracker text export.
+
+        Steps:
+        - Loop over tracks in a project
+        - Scan orders in a track, starting at order 0 (order hex are already stored as unsigned int)
+        - Build the line by looping over rows and cols. We can search up the substrings from the tokens stored in Track.
+        - If a token is an echo event (^-X) then replace the token with the correct substring.
+        - Append token substring to EchoBuffer as needed. (Append if note is of type: ON, OFF, ECHO, or NOISE.)
+        - Build the line of tokens and append it to Track.lines.
+        - If a line contains bxx, cxx, dxx, handle the order skip event properly. (Note we handle this event after we append the current line to Track.)
+        - Continue this process until we have reached a target order we have seen already.
+        
+        Now the lines are in sequential order, and are ready to be parsed by the MidiExporter.
+        '''
+
         self.track = None
         self.target_order = 0 
         self.target_row = 0
@@ -50,7 +73,7 @@ class ProjectFormatter:
 
         return TokenType.OTHER
     
-    def handle_echo_buffer(self, token: str, col: int):
+    def handle_echo_buffer(self, token: str, col: int) -> str:
         ''' 
         Given that token is an EchoBuffer event, replace ^-X with the correct substring from EchoBuffer 
         If there is no valid substring, replace ^-X will a null token "..."
@@ -106,6 +129,12 @@ class ProjectFormatter:
         return ControlFlowType.OTHER
     
     def scan_target_order(self):
+        '''
+        Scan an order starting from `self.target_row` to `self.track.num_rows`.
+        Build up a list of tokens. Combine them into a line string and append it to `self.track`.
+        Handles echo buffer and order skip events within line.
+        '''
+        
         pattern_list = self.track.orders[self.target_order]
 
         tokens = []
@@ -127,8 +156,7 @@ class ProjectFormatter:
                     self.echo_buffers[j].push_front(token[:3])
 
                 tokens.append(token)
-            # end col
-            
+
             line = " : ".join(tokens)
             self.track.lines.append(line)
 
@@ -136,14 +164,13 @@ class ProjectFormatter:
             if res in [ControlFlowType.BXX, ControlFlowType.CXX, ControlFlowType.DXX]:
                 return
             
-        # end row            
-        
         next_order = get_next_item(self.list_orders, self.target_order)
         self.target_order = next_order
         self.target_row = 0
-        return
 
     def format_track(self, track):
+        ''' Populates track.lines with the correct seqential data '''
+
         self.track = track
         self.track.lines.clear()
 
@@ -159,9 +186,10 @@ class ProjectFormatter:
         
         for line in track.lines:
             print(line)
-        return
     
     def format_project(self, project):
+        ''' Formats all Tracks within a Project '''
+
         for track in project.tracks:
             self.format_track(track)
-        return
+        

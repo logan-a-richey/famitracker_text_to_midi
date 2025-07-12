@@ -1,7 +1,17 @@
 # echo_buffer.py
 
 class EchoBuffer:
-    ''' Fixed Stack structure to contain token strings for EchoBuffer memoization '''
+    ''' 
+    FIFO structure to contain token strings for EchoBuffer memoization 
+    Contains methods `peek` and `push_front` for element access.
+    In FamiTracker, the max size of an echo buffer is 4.
+
+    Example:
+    4 3 2 1         # contains 4 elements
+    push_front(5)   # add a new element
+    5 4 3 2         # (element '1' has been popped since it is the oldest element)
+    '''
+
     def __init__(self):
         self.lst = []
         self.max_size = 4

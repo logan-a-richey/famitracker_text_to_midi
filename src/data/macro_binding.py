@@ -2,6 +2,7 @@
 
 class MacroBinding:
     ''' Macro information for Instruments '''
+
     def __init__(self,
         _seq_vol: int,
         _seq_arp: int,
@@ -24,7 +25,6 @@ class MacroBinding:
 
     def __str__(self):
         ''' Make printable type '''
-        #return "{} {} {} {} {}".format( int(bool(self.mac_vol)), int(bool(self.mac_arp)), int(bool(self.mac_pit)), int(bool(self.mac_hpi)), int(bool(self.mac_dut)))
         return "<{}>".format(self.__class__.__name__)
 
     def __repr__(self):
