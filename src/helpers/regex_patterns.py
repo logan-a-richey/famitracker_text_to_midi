@@ -11,7 +11,7 @@ class RegexPatterns:
         ^(?P<tag>\w+)\s+       
         (?P<value>\d+)           
         ''', re.VERBOSE)
-    DPCM_DEF = re.compile('''
+    DPCM_DEF = re.compile(r'''
         ^(?P<tag>DPCMDEF)\s+
         (?P<index>\d+)\s+
         (?P<size>\d+)\s*
@@ -121,6 +121,7 @@ class RegexPatterns:
         \s*\:\s*
         (?P<data>.*)
         ''', re.VERBOSE)
+    
     INT_LIST = re.compile(r'\-?\d+')
     HEX_LIST = re.compile(r'[0-9A-F]{2}')
 

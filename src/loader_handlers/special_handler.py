@@ -21,16 +21,7 @@ class SpecialHandler:
             print(line)
             raise ValueError("Regex failed.")
 
-        fields = [
-            "inst",
-            "octave",
-            "note",
-            "sample",
-            "pitch",
-            "loop",
-            "loop_point",
-            "delta"
-        ] 
+        fields = ["inst", "octave", "note", "sample", "pitch", "loop", "loop_point", "delta"] 
         inst_index, octave, note, sample, pitch, loop, loop_point, delta = list(map(int, regex_match.group(*fields)))
         key_dpcm_obj = KeyDPCM(inst_index, octave, note, sample, pitch, loop, loop_point, delta)
         
@@ -65,7 +56,7 @@ class SpecialHandler:
         inst_lookup.fds_wave = lst
 
     @register("FDSMOD")
-    def handle_fds_wave(self, project, line):
+    def handle_fds_mod(self, project, line):
         inst_index = int(line.split()[1])
         num_field = line.split(":")[1].strip().split()
         lst = list(map(int, num_field))
@@ -123,3 +114,23 @@ class SpecialHandler:
             inst_lookup.mac_pit = macro_obj
         else:
             return
+
+    @register("N163WAVE")
+    def handle_n163_wave(self, project, line: str) -> None:
+        ''' 
+        N163WAVE  11   0 : 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
+        ''' 
+
+        inst_index, wave_index = list(map(int, line.split()[1:3]))
+        lst = list(map(int, line.split(":")[1].strip().split()))
+
+        inst_lookup = project.instruments.get(inst_index, None)
+        if not inst_lookup:
+            return "[WARN] Inst not found."
+        
+        if inst_lookup.inst_type != InstTypes.INST_N163:
+            return "[WARN] Could not add wave to non-N163 instrument."
+
+        inst_lookup.waves[wave_index] = lst
+        return
+    

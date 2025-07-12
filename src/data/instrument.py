@@ -2,35 +2,7 @@
 
 from typing import List
 from helpers.constants import InstTypes
-
-class MacroBinding:
-    ''' Macro information for Instruments '''
-    def __init__(self,
-        _seq_vol: int,
-        _seq_arp: int,
-        _seq_pit: int,
-        _seq_hpi: int,
-        _seq_dut: int,
-    ):
-        self.seq_vol = _seq_vol 
-        self.seq_arp = _seq_arp 
-        self.seq_pit = _seq_pit 
-        self.seq_hpi = _seq_hpi 
-        self.seq_dut = _seq_dut 
-
-        # populate with macro objects later
-        self.mac_vol = None
-        self.mac_arp = None
-        self.mac_pit = None
-        self.mac_hpi = None
-        self.mac_dut = None
-
-    def __str__(self):
-        #return "{} {} {} {} {}".format( int(bool(self.mac_vol)), int(bool(self.mac_arp)), int(bool(self.mac_pit)), int(bool(self.mac_hpi)), int(bool(self.mac_dut)))
-        return "<{}>".format(self.__class__.__name__)
-
-    def __repr__(self):
-        return self.__str__()
+from data.macro_binding import MacroBinding
 
 class InstBase:
     def __init__(self, 
@@ -39,10 +11,13 @@ class InstBase:
     ):
         self.index = _index
         self.name = _name
-        self.inst_type = InstTypes.Unknown
+        self.inst_type = InstTypes.OTHER
     
     def __str__(self):
         return "<{}> {}".format(self.__class__.__name__, self.__dict__)
+    
+    def __repr__(self):
+        return self.__str__()
 
 class Inst2A03(InstBase):
     ''' Data structure for 2A03 Instrument '''
@@ -58,7 +33,7 @@ class Inst2A03(InstBase):
         super().__init__(_index, _name)
         self.macros = MacroBinding(_seq_vol, _seq_arp, _seq_pit, _seq_hpi, _seq_wav)
         self.key_dpcm = {}
-        self.inst_type = InstTypes.Inst2A03
+        self.inst_type = InstTypes.INST_2A03
 
 class InstVRC6(InstBase):
     ''' Data structure for VRC6 Instrument '''
@@ -73,7 +48,7 @@ class InstVRC6(InstBase):
     ):
         super().__init__(_index, _name)
         self.macros = MacroBinding(_seq_vol, _seq_arp, _seq_pit, _seq_hpi, _seq_wav)
-        self.inst_type = InstTypes.InstVRC6
+        self.inst_type = InstTypes.INST_VRC6
 
 class InstN163(InstBase):
     ''' Data structure for Namco Instrument '''
@@ -95,7 +70,7 @@ class InstN163(InstBase):
         self.w_pos = _w_pos
         self.w_count = _w_count
         self.waves = {}
-        self.inst_type = InstTypes.InstN163
+        self.inst_type = InstTypes.INST_N163
 
 class InstVRC7(InstBase):
     ''' Data structure for FM Instrument '''
@@ -108,7 +83,7 @@ class InstVRC7(InstBase):
         super().__init__(_index, _name)
         self.patch = _patch
         self.registers = _registers
-        self.inst_type = InstTypes.InstVRC7
+        self.inst_type = InstTypes.INST_VRC7 
     
 class InstS5B(InstBase):
     ''' Data structure for Sunsoft Instrument '''
@@ -123,7 +98,7 @@ class InstS5B(InstBase):
     ):
         super().__init__(_index, _name)
         self.macros = MacroBinding(_seq_vol, _seq_arp, _seq_pit, _seq_hpi, _seq_wav)
-        self.inst_type = InstTypes.InstS5B
+        self.inst_type = InstTypes.INST_S5B
 
 class InstFDS(InstBase):
     ''' Data structure for FDS wavetable Instrument '''
@@ -148,4 +123,4 @@ class InstFDS(InstBase):
         self.mac_arp = None
         self.mac_pit = None
 
-        self.inst_type = InstTypes.InstFDS
+        self.inst_type = InstTypes.INST_FDS

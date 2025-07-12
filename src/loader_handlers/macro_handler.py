@@ -12,7 +12,7 @@ from loader_handlers.handler_registry import register
 class MacroHandler:
     def __init__(self):
         pass
-
+    
     @register("MACRO")
     @register("MACROVRC6")
     @register("MACRON163")
@@ -29,13 +29,13 @@ class MacroHandler:
         
         inst_type = 0
         if macro_tag == "MACRO":
-            inst_type == InstTypes.Inst2A03
+            inst_type == InstTypes.INST_2A03
         elif macro_tag == "MACROVRC6":
-            inst_type = InstTypes.InstVRC6
+            inst_type = InstTypes.INST_VRC6
         elif macro_tag == "MACRON163":
-            inst_type = InstTypes.InstN163
+            inst_type = InstTypes.INST_N163
         elif macro_tag == "MACROS5B":
-            inst_type = InstTypes.InstS5B
+            inst_type = InstTypes.INST_S5B
         else:
             raise ValueError("Invalid Macro Type")
         
@@ -43,14 +43,13 @@ class MacroHandler:
         macro_obj = Macro(macro_type, macro_index, macro_loop, macro_release, macro_setting, macro_seq, macro_key)
         project.macros[macro_key] = macro_obj
     
-    # def load_macro(self, project: "Project", inst: "InstBase"):
     def load_macro(self, project, inst):
         inst_seq_indexes = [
             inst.macros.seq_vol, 
             inst.macros.seq_arp, 
             inst.macros.seq_pit, 
             inst.macros.seq_hpi, 
-            inst.macros.seq_dut 
+            inst.macros.seq_dut
         ]
         macro_types = [
             MacroTypes.VOL, 
@@ -66,9 +65,9 @@ class MacroHandler:
             inst.macros.mac_hpi, 
             inst.macros.mac_dut
         ]
-        for i in range(5):
-            macro_key = generate_macro_key(inst.inst_type, macro_types[i], inst_seq_indexes[i])
+        
+        for seq_idx, macro_type, inst_field in zip(inst_seq_indexes, macro_types, inst_macro_fields):
+            macro_key = generate_macro_key(inst.inst_type, macro_type, seq_idx)
             macro = project.macros.get(macro_key, None)
             if macro:
-                inst_macro_fields[i] = macro
-        
+                inst_field = macro 

@@ -2,13 +2,13 @@
 
 class DPCM:
     def __init__(self, 
-        index: int,
-        size: int, 
-        name: str
+        _index: int,
+        _size: int, 
+        _name: str
     ):
-        self.index = index
-        self.size = size 
-        self.name = name
+        self.index = _index
+        self.size = _size 
+        self.name = _name
 
         self.data = []
     

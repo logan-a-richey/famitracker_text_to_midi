@@ -24,7 +24,7 @@ class Project:
 
     def show(self):
         out = ""
-        divider = "{}\n".format("*" * 80)
+        divider = "{}\n".format("-" * 80)
 
         out += "Project Data:\n"
         out += divider
