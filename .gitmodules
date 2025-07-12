@@ -1,0 +1,3 @@
+[submodule "src/submodules/midi_writer_cpp"]
+	path = src/submodules/midi_writer_cpp
+	url = https://github.com/logan-a-richey/midi_writer_cpp.git

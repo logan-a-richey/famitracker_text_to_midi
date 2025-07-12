@@ -184,8 +184,8 @@ class ProjectFormatter:
             seen_it.add(self.target_order)
             self.scan_target_order()
         
-        for line in track.lines:
-            print(line)
+        #for line in track.lines:
+        #    print(line)
     
     def format_project(self, project):
         ''' Formats all Tracks within a Project '''
