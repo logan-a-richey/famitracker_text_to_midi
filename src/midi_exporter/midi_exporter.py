@@ -8,7 +8,8 @@ logger = Logger(__name__)
 from helpers.helper_functions import clean_string, classify_token_type
 from helpers.constants import TokenType, SUBDIVISION 
 
-from submodules.midi_writer_cpp.python_usage.midi_writer import MidiWriter
+# from submodules.midi_writer_cpp.python_usage.midi_writer import MidiWriter
+from midi_exporter.midi_writer import MidiWriter
 from helpers.regex_patterns import RegexPatterns
     
 class ColContext:
@@ -43,15 +44,13 @@ def get_token_pitch(token: str, note_type: int) -> int:
 
 def get_token_inst(token: str, context: ColContext) -> int:
     try: 
-        inst = int(token.split()[1], 16)
-        return inst
+        return int(token.split()[1], 16)
     except:
         return context.instrument
 
 def get_token_vol(token: str, context: ColContext) -> int:
     try: 
-        vol = int(token.split()[2], 16) * 12
-        return vol
+        return int(token.split()[2], 16) * 8
     except:
         return context.velocity
 
@@ -101,9 +100,8 @@ class MidiExporter:
         if velocity <= 0:
             print("Could not add note: Zero or negative velocity.")
             return
-        
-        args = [int(x) for x in [track, channel, start, duration, pitch, velocity]]
-        self.midi.add_note(*args)
+
+        self.midi.add_note(track, channel, start, duration, pitch, velocity) 
     
     def _handle_note(self, token: str, i: int, j: int) -> None:
         '''
@@ -121,7 +119,9 @@ class MidiExporter:
         duration = start - context.start 
         inst = get_token_inst(token, context)
         vol = get_token_vol(token, context)
-
+        if vol > 127 or vol < 0:
+            raise ValueError("Vol OOB: {}".format(vol))
+        
         if note_type in (TokenType.NOTE_ON, TokenType.NOISE_ON):
             if context.is_playing:
                 self.add_note_if_valid(j, j % 2, context.start, duration, context.pitch, context.velocity)
@@ -145,6 +145,10 @@ class MidiExporter:
         output_file_path = os.path.join(project_path, output_file_name)
         
         midi = MidiWriter()
+        track_idx = midi.add_track()
+        midi.set_channel(0, 1)  # channel 0, program 1 (e.g., piano)
+        midi.add_bpm(track_idx, 0, 120)
+        midi.add_time_signature(track_idx, 0, 4, 4)
         
         # TODO
         midi.add_bpm(0, 0, 120)
@@ -157,8 +161,8 @@ class MidiExporter:
             for j, token in enumerate(tokens):
                 self._handle_note(token, i, j)
         
-        logger.info("Wrote file: {}".format(output_file_path)) 
         midi.save(output_file_path)
+        logger.info("Wrote file: {}".format(output_file_path)) 
 
     def export_project(self, project, output_dir_path: str):
         ''' Export all Tracks in Project as MIDI '''
