@@ -1,10 +1,15 @@
 # project_formatter.py
 
+from util.custom_logger import Logger, LoggingLevels
+logger = Logger(__name__)
+logger.set_level(LoggingLevels.VERBOSE)
+
 import re
 from helpers.helper_functions import generate_token_key, get_next_item
 from helpers.constants import TokenType, ControlFlowType
 from helpers.regex_patterns import RegexPatterns
 from data.echo_buffer import  EchoBuffer 
+
 
 class ProjectFormatter:
     def __init__(self):
@@ -156,8 +161,11 @@ class ProjectFormatter:
                     self.echo_buffers[j].push_front(token[:3])
 
                 tokens.append(token)
+            prefix = "PAT {:02x} ROW {:02x}".format(self.target_order, i)
+            prefix = prefix.upper()
 
-            line = " : ".join(tokens)
+            line = " | ".join([prefix] + tokens)
+
             self.track.lines.append(line)
 
             res = self.handle_control_flow(line)
@@ -179,13 +187,11 @@ class ProjectFormatter:
 
         seen_it = set()
         while self.target_order not in seen_it:
-            print("[INFO] Scanning order {}".format(self.target_order))
-
             seen_it.add(self.target_order)
             self.scan_target_order()
         
-        #for line in track.lines:
-        #    print(line)
+        for line in track.lines:
+            logger.verbose(line)
     
     def format_project(self, project):
         ''' Formats all Tracks within a Project '''
