@@ -1,5 +1,24 @@
 #!/usr/bin/env python3
 # main.py
+'''
+TODO: 
+Ideal usage:
+./program.py --input <FILE> --destination <OUTPUT_PATH> --subdivision <INTEGER>
+
+--- Additional Effects ---
+Debug arpeggio effect   (00c)
+Debug pitch bend effect (Rxx Qxx)
+Note cut and delay      (Sxx, Gxx)
+Substring or noise "smart" drum mapping
+
+Fix incorrect MIDITRACK add_note()
+
+Argparse CLI
+WXPython Desktop APP
+Web Upload and Download APP
+
+Update README
+'''
 
 import os
 import re
