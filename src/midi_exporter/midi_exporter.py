@@ -87,8 +87,14 @@ class MidiExporter:
         logger.info("File created: {}".format(output_filepath))
         return 
     
-    def add_note_if_valid(self, track: int, channel: int, start: int, duration: int,
-                        pitch: int, velocity: int, off_velocity: int = 64) -> None:
+    def add_note_if_valid(self, 
+        track: int, 
+        channel: int, 
+        start: int, 
+        duration: int,
+        pitch: int, 
+        velocity: int
+    ) -> None:
         if duration <= 0:
             print("Could not add note: Zero or negative duration.")
             return
@@ -96,7 +102,7 @@ class MidiExporter:
             print("Could not add note: Zero or negative velocity.")
             return
         
-        args = [int(x) for x in [track, channel, start, duration, pitch, velocity, off_velocity]]
+        args = [int(x) for x in [track, channel, start, duration, pitch, velocity]]
         self.midi.add_note(*args)
     
     def _handle_note(self, token: str, i: int, j: int) -> None:
