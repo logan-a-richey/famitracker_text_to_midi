@@ -11,20 +11,29 @@ class Track:
     
     count = 0
 
-    def __init__(self):
+    def __init__(self,
+        _num_rows: int,
+        _speed: int,
+        _tempo: int,
+        _name: str
+    ):
         Track.count += 1
         self.index = Track.count
 
-        self.name = ""
-        self.speed = 6
-        self.tempo = 150
-        self.num_rows = 64
+        self.name = _name
+        self.speed = _speed
+        self.tempo = _tempo
+        self.num_rows = _num_rows
+        
         self.num_cols = 5
         self.eff_cols = [1 for _ in range(5)]
 
         self.orders: Dict[int, List[int]] = {}
         self.tokens: Dict[any, str] = {}
         self.lines: List[str] = []
+
+        self.curr_speed = self.speed
+        self.curr_tempo = self.tempo 
 
     def __str__(self):
         ''' Make printable type '''

@@ -31,15 +31,25 @@ def get_output_path():
         os.makedirs(output_path, exist_ok=True)
     return output_path
 
+def get_rows_per_beat() -> int:
+    try:
+        return int(sys.argv[3])
+    except:
+        return 4
+
 def main():
     ''' Program entry point '''
 
     # get input file from the terminal
     input_file = get_input_file()
     output_path = get_output_path()
+    rows_per_beat = get_rows_per_beat()
 
     # setup container and helper classes
     project = Project()
+    project.rows_per_beat = rows_per_beat
+
+    # parse and export
     stage1 = ProjectLoader()
     stage2 = ProjectFormatter()
     stage3 = MidiExporter()
@@ -51,7 +61,7 @@ def main():
     stage1.load_project(project, input_file)
     #project.show()
     stage2.format_project(project)
-    stage3.export_project(project, output_dir_path)
+    stage3.export_project(project, output_dir_path, rows_per_beat)
 
 if __name__ == "__main__":
     main()

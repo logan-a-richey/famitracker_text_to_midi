@@ -19,16 +19,11 @@ class TrackHandler:
         if not regex_match:
             raise ValueError("Regex failed.")
         
-        t = Track()
-        
         args = ["num_rows", "speed", "tempo"]
         num_rows, speed, tempo = list(map(int, regex_match.group(*args)))
         name = regex_match.group("name")
 
-        t.num_rows = num_rows
-        t.name = name 
-        t.speed = speed
-        t.tempo = tempo
+        t = Track( num_rows, speed, tempo, name)
 
         project.tracks.append(t)
     

@@ -21,3 +21,7 @@ class ColContext:
         
         self.curr_vol = 15      # default hex max
         self.last_vol = 15
+
+        # For 0XY effect
+        self.arp_x = 0
+        self.arp_y = 0

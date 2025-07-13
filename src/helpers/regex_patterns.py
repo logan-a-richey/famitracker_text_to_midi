@@ -142,3 +142,9 @@ class RegexPatterns:
     BXX = re.compile(r'B[0-9A-F]{2}')
     CXX = re.compile(r'C[0-9A-F]{2}')
     DXX = re.compile(r'D[0-9A-F]{2}')
+
+    EFFECT_RQ = re.compile(r'[RQ][0-9A-F]{2}')
+    EFFECT_ARP = re.compile(r'[0][0-9A-F]{2}')
+    EFFECT_GXX = re.compile(r'[G][0-9A-F]{2}')
+    EFFECT_SXX = re.compile(r'[S][0-09A-F]{2}')
+    EFFECT_SPEED_AND_TEMPO = re.compile(r'F[0-9A-F]{2}')

@@ -7,6 +7,8 @@ class Project:
     '''
 
     def __init__(self):
+        self.rows_per_beat = 4
+
         self.title = "DefaultTitle"
         self.author = "DefaultAuthor"
         self.copyright = "DefaultCopyright"
