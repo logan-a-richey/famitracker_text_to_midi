@@ -1,5 +1,10 @@
 # fami_helpers.py
 
+VOL_MAPPING = {}
+for i in range(15):
+    val = int(((i / 15) ** 0.5 ) * 127)
+    VOL_MAPPING[i] = val 
+
 class FamiHelpers:
     ''' Contains FamiTracker specific helper functions '''
 
@@ -13,6 +18,7 @@ class FamiHelpers:
         'B': 11 
     }
 
+    
     @staticmethod 
     def get_fami_bpm(project: "Project", track: "Track") -> int:
         speed = max(track.speed, 1)
@@ -45,7 +51,7 @@ class FamiHelpers:
     @staticmethod 
     def get_noise_on_pitch(token: str) -> int:
         try:
-            pitch = int(token[0], 16) + 60
+            pitch = int(token[0], 16) + 48
             return pitch
         except:
             raise ValueError("Could not convert token to Midi pitch: {}".format(token))
@@ -60,6 +66,9 @@ class FamiHelpers:
     @staticmethod 
     def get_token_vol(token: str, context: "ColContext") -> int:
         try: 
-            return int(token.split()[2], 16) * 8
+            # square root scale to 127
+            vol = max(min(int(token.split()[2], 16), 15), 0)
+            vol_scaled = VOL_MAPPING.get(vol, 60)
+            return vol_scaled 
         except:
             return context.last_vol

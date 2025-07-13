@@ -1,6 +1,9 @@
 # constants.py
 
-SUBDIVISION = 120 # 16th note
+SUBDIVISION = int(480 / 8 )
+DRUM_TRACK = 0 
+DRUM_CHANNEL = 9
+DRUM_VOL = 120
 
 class MacroTypes:
     VOL = 0
@@ -32,3 +35,29 @@ class ControlFlowType:
     BXX     = 1
     CXX     = 2
     DXX     = 3
+
+class DrumPitches:
+    BASS_DRUM = 35
+    SNARE_RIM = 37
+    SNARE_DRUM = 38 
+    
+    HI_HAT_CLOSED = 42 
+    HI_HAT_OPEN = 46 
+    # HI_HAT_FOOT = 44 
+
+    CYM_CRASH = 49
+    CYM_RIDE = 51 
+    CYM_CHINA = 52
+    CYM_SPLASH = 55
+
+    TOM_LOW_FLOOR = 41
+    TOM_HI_FLOOR = 43
+    TOM_LOW = 45
+    TOM_LOW_MID = 47
+    TOM_HI_MID = 48 
+    TOM_HI = 50
+
+    COWBELL = 56
+
+DRUM_STRINGS = ["kick", "snare", "tom", "ride" "crash"]
+DRUM_STRINGS_PITCHES = [DrumPitches.BASS_DRUM, DrumPitches.SNARE_DRUM, DrumPitches.TOM_HI_MID, DrumPitches.CYM_RIDE, DrumPitches.CYM_RIDE ]
