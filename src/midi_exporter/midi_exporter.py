@@ -2,62 +2,27 @@
 
 import os 
 
-from util.custom_logger import Logger
+from util.custom_logger import Logger, LoggingLevels
 logger = Logger(__name__)
+logger.set_level(LoggingLevels.VERBOSE)
 
 from helpers.helper_functions import clean_string, classify_token_type
 from helpers.constants import TokenType, SUBDIVISION 
 
+# CPP VERSION
 # from submodules.midi_writer_cpp.python_usage.midi_writer import MidiWriter
+
+# PYTHON VERSION
 from midi_exporter.midi_writer import MidiWriter
+from helpers.fami_helpers import FamiHelpers
 from helpers.regex_patterns import RegexPatterns
-    
-class ColContext:
-    ''' Contains buffered note data '''
-
-    def __init__(self):
-        self.is_playing = False
-        self.start = 0          # 0 or greater
-        self.pitch = 60         # middle c
-        self.instrument = 0     # default inst
-        self.velocity = 15      # default hex max
-
-NOTE_OFFSETS = { 'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11 }
-def get_token_pitch(token: str, note_type: int) -> int:
-    if note_type == TokenType.NOTE_ON:
-        pitch = NOTE_OFFSETS.get(token[0], 0)
-
-        accidental = token[1]
-        if accidental == '#':
-            pitch += 1
-        elif accidental == 'b':
-            pitch -= 1
-
-        octave = int(token[2])
-        pitch += octave * 12
-        return pitch
-    elif note_type == TokenType.NOISE_ON:
-        pitch = int(token[0], 16)
-        return pitch
-    else:
-        raise ValueError("Could not convert token to Midi pitch: {}".format(token))
-
-def get_token_inst(token: str, context: ColContext) -> int:
-    try: 
-        return int(token.split()[1], 16)
-    except:
-        return context.instrument
-
-def get_token_vol(token: str, context: ColContext) -> int:
-    try: 
-        return int(token.split()[2], 16) * 8
-    except:
-        return context.velocity
+from data.col_context import ColContext
 
 class MidiExporter:
     def __init__(self):
         self.col_contexts = []
         self.midi = MidiWriter()
+        self.fami_helpers = FamiHelpers()
 
     def test_export(self, output_dir_path: str):
         project_path = os.path.join(output_dir_path, "Test")
@@ -85,85 +50,85 @@ class MidiExporter:
         midi_writer.save(output_filepath)
         logger.info("File created: {}".format(output_filepath))
         return 
-    
-    def add_note_if_valid(self, 
-        track: int, 
-        channel: int, 
-        start: int, 
-        duration: int,
-        pitch: int, 
-        velocity: int
-    ) -> None:
-        if duration <= 0:
-            print("Could not add note: Zero or negative duration.")
+
+    def add_note_if_valid(self, context: "ColContext") -> None:
+        if not context.is_playing:
+            return 
+        
+        duration = context.curr_tick - context.last_tick
+        if duration <= 0 :
+            logger.warn("Duration OOB: {}".format(duration))
+            return 
+        if context.last_vol <= 0 or context.last_vol > 127:
+            logger.warn("Velocity OOB: {}".format(context.last_vol))
+            return 
+        if context.pitch < 0 or context.pitch > 127:
+            logger.warn("Pitch OOB: {}".format(context.pitch))
             return
-        if velocity <= 0:
-            print("Could not add note: Zero or negative velocity.")
-            return
 
-        self.midi.add_note(track, channel, start, duration, pitch, velocity) 
-    
-    def _handle_note(self, token: str, i: int, j: int) -> None:
-        '''
-        Handle note event and midi writing for a token.
+        midi_args = [
+            context.idx + 1, # track_idx
+            context.idx  % 2 , # channel (alternate piano instruments)
+            context.last_tick, # start 
+            duration, 
+            context.pitch, 
+            context.last_vol
+        ]
+        logger.verbose("Added note: track={}, channel={}, start={}, duration={}, pitch={}, velocity={}".format(*midi_args)) 
+        self.midi.add_note(*midi_args)
+        return
 
-        @param token: Famitracker substring in form "... .. . ..."
-        @param i: row index
-        @param j: col index
-        '''
+    def export_track(self, project, track, path: str):
+        self.midi = MidiWriter()
 
-        context = self.col_contexts[j]
-        note_type = classify_token_type(token)
+        self.midi.add_track()
+        self.midi.add_track_name(0, clean_string(track.name), 0)
+        self.midi.set_channel(0, 0)
+        bpm = FamiHelpers.get_fami_bpm(track)
+        self.midi.add_bpm(0, 0, bpm)
+        self.midi.add_time_signature(0, 0, 4, 4)
 
-        start = i * SUBDIVISION
-        duration = start - context.start 
-        inst = get_token_inst(token, context)
-        vol = get_token_vol(token, context)
-        if vol > 127 or vol < 0:
-            raise ValueError("Vol OOB: {}".format(vol))
-        
-        if note_type in (TokenType.NOTE_ON, TokenType.NOISE_ON):
-            if context.is_playing:
-                self.add_note_if_valid(j, j % 2, context.start, duration, context.pitch, context.velocity)
+        self.col_contexts = [ColContext(idx) for idx in range(track.num_cols)]
 
-            context.is_playing = True
-            context.start = start
-            context.pitch = get_token_pitch(token, note_type)
-            context.instrument = inst
-            context.velocity = vol
-
-        elif note_type in (TokenType.NOTE_OFF, TokenType.NOTE_RELEASE) or vol == 0:
-            if context.is_playing:
-                self.add_note_if_valid(j, j % 2, context.start, duration, context.pitch, context.velocity)
-
-            context.is_playing = False
-        
-    def export_track(self, project, track, project_path: str) -> None:
-        # handle file io
-        output_file_name = "track_{}_{}".format(track.index, track.name)
-        output_file_name = clean_string(output_file_name) + ".mid"
-        output_file_path = os.path.join(project_path, output_file_name)
-        
-        midi = MidiWriter()
-        track_idx = midi.add_track()
-        midi.set_channel(0, 1)  # channel 0, program 1 (e.g., piano)
-        midi.add_bpm(track_idx, 0, 120)
-        midi.add_time_signature(track_idx, 0, 4, 4)
-        
-        # TODO
-        midi.add_bpm(0, 0, 120)
-
-        self.col_contexts = [ColContext() for _ in range(track.num_cols)]
-        
-        # parse Track
         for i, line in enumerate(track.lines):
-            tokens = [token.strip() for token in line.split("|")[1:] ]
-            for j, token in enumerate(tokens):
-                self._handle_note(token, i, j)
-        
-        midi.save(output_file_path)
-        logger.info("Wrote file: {}".format(output_file_path)) 
+            midi_tick = i * SUBDIVISION 
 
+            tokens = [token.strip() for token in line.split("|")[1:]]
+            for j, token in enumerate(tokens):
+                context = self.col_contexts[j] 
+
+                context.curr_vol = FamiHelpers.get_token_vol(token, context)
+                context.curr_inst = FamiHelpers.get_token_inst(token, context)
+                context.curr_tick = midi_tick 
+
+                token_type = classify_token_type(token)
+                if token_type == TokenType.NOTE_ON:
+                    self.add_note_if_valid(context)
+
+                    # prepare new note
+                    context.is_playing = True 
+                    context.last_tick = context.curr_tick
+                    context.pitch = FamiHelpers.get_note_on_pitch(token)
+                    context.last_inst = context.curr_inst 
+                    context.last_vol = context.curr_vol
+
+                elif token_type == TokenType.NOTE_OFF:
+                    self.add_note_if_valid(context)
+                    context.is_playing = False 
+                #elif token_type == TokenType.NOISE_ON:
+                #    self.add_note_if_valid(context)
+                #    context.is_playing = True 
+                else:
+                    continue 
+        
+        name = clean_string(track.name)
+        if not name:
+            name = "new_song"
+        filename = "track_{}_{}.mid".format(track.index, name)
+        filepath = os.path.join(path, filename)
+        self.midi.save(filepath)
+        return
+     
     def export_project(self, project, output_dir_path: str):
         ''' Export all Tracks in Project as MIDI '''
 

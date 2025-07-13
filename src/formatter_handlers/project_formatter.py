@@ -2,7 +2,7 @@
 
 from util.custom_logger import Logger, LoggingLevels
 logger = Logger(__name__)
-logger.set_level(LoggingLevels.VERBOSE)
+logger.set_level(LoggingLevels.INFO)
 
 import re
 from helpers.helper_functions import generate_token_key, get_next_item, classify_token_type
