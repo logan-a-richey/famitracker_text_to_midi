@@ -81,26 +81,3 @@ def classify_token_type(token: str) -> int:
             return field
 
     return TokenType.OTHER
-
-NOTE_OFFSETS = { 'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11 }
-def get_midi_pitch(token: str) -> int:
-    note_on_match = RegexPatterns.NOTE_ON.match(token)
-    noise_on_match = RegexPatterns.NOISE_ON.match(token)
-
-    if note_on_match:
-        pitch = NOTE_OFFSETS.get(token[0], 0)
-
-        accidental = token[1]
-        if accidental == '#':
-            pitch += 1
-        elif accidental == 'b':
-            pitch -= 1
-
-        octave = int(token[2])
-        pitch += octave * 12
-        return pitch
-    elif noise_on_match:
-        pitch = int(token[0], 16)
-        return pitch
-    else:
-        raise ValueError("Could not convert token to Midi pitch: {}".format(token))
