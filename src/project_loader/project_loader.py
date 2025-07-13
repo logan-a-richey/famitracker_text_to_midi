@@ -10,15 +10,15 @@ from data.macro import Macro
 from data.instrument import Inst2A03, InstVRC6, InstVRC7, InstFDS, InstN163, InstS5B
 from data.track import Track
 
-from loader_handlers.info_handler import InfoHandler
-from loader_handlers.macro_handler import MacroHandler
-from loader_handlers.instrument_handler import InstrumentHandler
-from loader_handlers.track_handler import TrackHandler
-from loader_handlers.dpcm_handler import DPCMHandler
-from loader_handlers.groove_handler import GrooveHandler
-from loader_handlers.special_handler import SpecialHandler
+from project_loader.info_handler import InfoHandler
+from project_loader.macro_handler import MacroHandler
+from project_loader.instrument_handler import InstrumentHandler
+from project_loader.track_handler import TrackHandler
+from project_loader.dpcm_handler import DPCMHandler
+from project_loader.groove_handler import GrooveHandler
+from project_loader.special_handler import SpecialHandler
 
-from loader_handlers.handler_registry import collect_handlers
+from project_loader.handler_registry import collect_handlers
 
 class ProjectLoader:
     ''' 

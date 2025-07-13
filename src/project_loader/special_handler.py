@@ -4,7 +4,7 @@ from util.custom_logger import Logger, LoggingLevels
 logger = Logger(__name__)
 logger.set_level(LoggingLevels.INFO)
 
-from loader_handlers.handler_registry import register
+from project_loader.handler_registry import register
 
 from data.key_dpcm import KeyDPCM
 from data.macro import Macro 

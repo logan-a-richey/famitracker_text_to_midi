@@ -7,7 +7,7 @@ from helpers.helper_functions import generate_macro_key
 
 from data.macro import Macro 
 
-from loader_handlers.handler_registry import register
+from project_loader.handler_registry import register
 
 class MacroHandler:
     def __init__(self):

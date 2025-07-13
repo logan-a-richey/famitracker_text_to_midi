@@ -10,18 +10,21 @@ from helpers.helper_functions import clean_string, classify_token_type
 from helpers.constants import TokenType, DrumPitches
 from helpers.constants import DRUM_CHANNEL, DRUM_TRACK, DRUM_STRINGS, DRUM_STRINGS_PITCHES, DRUM_VOL
 
-# CPP VERSION
-# from submodules.midi_writer_cpp.python_usage.midi_writer import MidiWriter
-
-# PYTHON VERSION
-from midi_exporter.midi_writer import MidiWriter
 from helpers.fami_helpers import FamiHelpers
 from helpers.regex_patterns import RegexPatterns
 from data.col_context import ColContext
 
+# CPP VERSION
+# from submodules.midi_writer_cpp.python_usage.midi_writer import MidiWriter
+
+# PYTHON VERSION
+# TODO placeholder submodule
+from submodules.mock_midi_writer_py.midi_writer import MidiWriter 
+
+# TODO better place for this global variable?
 SUBDIVISION = 120
 
-class MidiExporter:
+class ProjectExporter:
     '''
     Contains methods for parsing a Formatted FamiTracker Track into MIDI.
 

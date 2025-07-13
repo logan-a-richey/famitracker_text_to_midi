@@ -2,7 +2,7 @@
 
 import re
 from helpers.regex_patterns import RegexPatterns
-from loader_handlers.handler_registry import register
+from project_loader.handler_registry import register
 from data.track import Track
 from helpers.helper_functions import generate_token_key
 

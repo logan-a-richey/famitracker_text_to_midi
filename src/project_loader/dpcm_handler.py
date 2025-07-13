@@ -1,6 +1,6 @@
 # dpcm_handler.py
 
-from loader_handlers.handler_registry import register 
+from project_loader.handler_registry import register 
 from helpers.regex_patterns import RegexPatterns
 from data.dpcm import DPCM
 

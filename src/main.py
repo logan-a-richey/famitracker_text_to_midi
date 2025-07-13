@@ -27,9 +27,9 @@ sys.dont_write_bytecode = True
 
 
 from data.project import Project 
-from loader_handlers.project_loader import ProjectLoader
-from formatter_handlers.project_formatter import ProjectFormatter
-from midi_exporter.midi_exporter import MidiExporter
+from project_loader.project_loader import ProjectLoader
+from project_formatter.project_formatter import ProjectFormatter
+from project_exporter.project_exporter import ProjectExporter
 
 def get_input_file() -> str:
     ''' Get input file from cmdline '''
@@ -71,7 +71,7 @@ def main():
     # parse and export
     stage1 = ProjectLoader()
     stage2 = ProjectFormatter()
-    stage3 = MidiExporter()
+    stage3 = ProjectExporter()
 
     # setup output dir path
     output_dir_path = os.path.join( os.getcwd(), output_path)        
@@ -84,3 +84,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
