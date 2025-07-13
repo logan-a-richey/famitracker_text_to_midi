@@ -102,12 +102,12 @@ class MidiExporter:
         if duration <= 0 :
             logger.error("Duration invalid: {}".format(duration))
             return 
-        if context.last_vol <= 0 or context.last_vol > 127:
-            logger.warn("Velocity invalid: {}".format(context.last_vol))
-            return 
         if context.pitch < 0 or context.pitch > 127:
-            logger.warn("Pitch invalid: {}".format(context.pitch))
+            logger.error("Pitch invalid: {}".format(context.pitch))
             return
+        if context.last_vol <= 0 or context.last_vol > 127:
+            logger.debug("Velocity invalid: {}".format(context.last_vol))
+            return 
         
         midi_args = [
             context.idx + 1, # track_idx

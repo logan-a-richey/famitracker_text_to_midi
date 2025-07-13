@@ -172,10 +172,9 @@ def test():
     midi.add_note(track_idx, 0, 0, 480, 60, 100)  # C4, quarter note, velocity 100
     midi.save("output.mid")
 
-
 def main():
+    test()
     twinkle_star_test()
-    # test()
 
 if __name__ == "__main__":
     main()
