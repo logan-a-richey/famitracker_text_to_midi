@@ -76,7 +76,7 @@ class ProjectLoader:
                     try:
                         handle(project, line)
                     except Exception as e:
-                        logger.warn("Line {}: Handler error: {}".format(line_num, e))
+                        logger.warn("Handler error: {} | Line {}: ".format(e, line))
 
         except FileNotFoundError:
             logger.error("File not found: {}".format(input_file))

@@ -84,7 +84,7 @@ class MidiExporter:
         self.midi.add_track()
         self.midi.add_track_name(0, clean_string(track.name), 0)
         self.midi.set_channel(0, 0)
-        bpm = FamiHelpers.get_fami_bpm(track)
+        bpm = FamiHelpers.get_fami_bpm(project, track)
         self.midi.add_bpm(0, 0, bpm)
         self.midi.add_time_signature(0, 0, 4, 4)
 

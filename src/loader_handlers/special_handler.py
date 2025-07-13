@@ -1,5 +1,9 @@
 # special_handler.py
 
+from util.custom_logger import Logger, LoggingLevels
+logger = Logger(__name__)
+logger.set_level(LoggingLevels.INFO)
+
 from loader_handlers.handler_registry import register
 
 from data.key_dpcm import KeyDPCM
@@ -19,7 +23,7 @@ class SpecialHandler:
         regex_match = RegexPatterns.KEY_DPCM.match(line)
         if not regex_match:
             print(line)
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
 
         fields = ["inst", "octave", "note", "sample", "pitch", "loop", "loop_point", "delta"] 
         inst_index, octave, note, sample, pitch, loop, loop_point, delta = list(map(int, regex_match.group(*fields)))
@@ -72,24 +76,30 @@ class SpecialHandler:
     
     @register("FDSMACRO")
     def handle_fds_macro(self, project, line):
+        line = line.strip()
+
         # FDSMACRO [inst] [type] [loop] [release] [setting] : [macro]
         regex_match = RegexPatterns.FDS_MACRO.match(line)
         if not regex_match:
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
         
         fields = ["inst", "type", "loop", "release", "setting"]
-        inst_index, macro_type, macro_loop, macro_release, macro_setting = list(map(
-            int, 
-            regex_match.group(*fields)
-        ))
+        logger.debug("group: {}".format(regex_match.group(*fields)))
 
-        macro_sequence = list(map(int, regex_match.group("lst")))
-         
+        try:
+            inst_index, macro_type, macro_loop, macro_release, macro_setting = list(map( int, regex_match.group(*fields)))
+            macro_sequence = list(map(
+                int, 
+                RegexPatterns.INT_LIST.findall(regex_match.group("data"))
+            ))
+        except:
+            raise ValueError("Could not convert int list. Line \'{}\'".format(line))
+
         # this value does not matter since it isn't added to Project macros
         # this macro is only binded to InstFDS 
         default_macro_index = 0
         
-        macro_key = generate_macro_key(InstTypes.InstFDS, macro_type, default_macro_index)
+        macro_key = generate_macro_key(InstTypes.INST_FDS, macro_type, default_macro_index)
 
         # TODO
         macro_obj = Macro(

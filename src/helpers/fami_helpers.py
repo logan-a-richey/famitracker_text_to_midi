@@ -14,8 +14,15 @@ class FamiHelpers:
     }
 
     @staticmethod 
-    def get_fami_bpm(track: "Track") -> int:
-        return int(track.tempo * (6 / max(track.speed, 1)))
+    def get_fami_bpm(project: "Project", track: "Track") -> int:
+        speed = max(track.speed, 1)
+        #if track.index in project.usegroove:
+        #    list_grooves = list(project.grooves.keys())
+        #    first_groove_index = list_grooves[0]
+        #    default_groove = project.grooves[first_groove_index]
+        #    average_speed = sum(default_groove.data) / len(default_groove.data)
+        bpm = int(track.tempo * (6 / speed))
+        return bpm 
     
     @staticmethod 
     def get_note_on_pitch(token: str) -> int:

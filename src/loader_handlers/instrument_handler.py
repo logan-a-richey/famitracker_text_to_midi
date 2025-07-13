@@ -51,7 +51,7 @@ class InstrumentHandler:
     def handle_inst_2a03(self, project, line: str):
         regex_match = RegexPatterns.INST_BASIC.match(line)
         if not regex_match:
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
         
         inst_tag = regex_match.group("tag")
         num_fields = ["index", "seq_vol", "seq_arp", "seq_pit", "seq_hpi", "seq_dut"]
@@ -69,7 +69,7 @@ class InstrumentHandler:
     def handle_inst_vrc6(self, project, line: str):
         regex_match = RegexPatterns.INST_BASIC.match(line)
         if not regex_match:
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
         
         inst_tag = regex_match.group("tag")
         num_fields = ["index", "seq_vol", "seq_arp", "seq_pit", "seq_hpi", "seq_dut"]
@@ -87,7 +87,7 @@ class InstrumentHandler:
     def handle_inst_vrc7(self, project, line: str):
         regex_match = RegexPatterns.INST_VRC7.match(line)
         if not regex_match:
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
         
         inst_tag = regex_match.group("tag")
         inst_index, inst_patch = list(map(int, regex_match.group("index", "patch")))
@@ -104,7 +104,8 @@ class InstrumentHandler:
         """ Namco instrument handler """
         regex_match = RegexPatterns.INST_N163.match(line)
         if not regex_match:
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
+
         tag = regex_match.group("tag")
         num_fields = ["index", "seq_vol", "seq_arp", "seq_pit", "seq_hpi", "seq_dut", "w_size", "w_pos", "w_count"]
         index, seq_vol, seq_arp, seq_pit, seq_hpi, seq_dut, w_size, w_pos, w_count = list(map(int, regex_match.group(*num_fields)))
@@ -125,7 +126,7 @@ class InstrumentHandler:
         """
         regex_match = RegexPatterns.INST_FDS.match(line)
         if not regex_match:
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
         
         num_fields = ["index", "mod_enable", "mod_speed", "mod_depth", "mod_delay"]
 
@@ -142,7 +143,7 @@ class InstrumentHandler:
         """ Sunsoft instrument handler """
         regex_match = RegexPatterns.INST_BASIC.match(line)
         if not regex_match:
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
         
         inst_tag = regex_match.group("tag")
         num_fields = ["index", "seq_vol", "seq_arp", "seq_pit", "seq_hpi", "seq_dut"]

@@ -15,7 +15,7 @@ class DPCMHandler:
         '''
         regex_match = RegexPatterns.DPCM_DEF.match(line)
         if not regex_match:
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
         
         index, size = list(map(int, regex_match.group("index", "size")))
         name = regex_match.group("name")

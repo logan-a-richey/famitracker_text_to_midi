@@ -12,10 +12,10 @@ class GrooveHandler:
     def handle_groove(self, project, line):
         regex_match = RegexPatterns.GROOVE.match(line)
         if not regex_match:
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
 
         index, size = list(map(int, regex_match.group("index", "size")))
-        data = list(map(line.split(":")[1].strip().split()))
+        data = list(map(int, RegexPatterns.INT_LIST.findall(regex_match.group("data"))))
 
         groove_obj = Groove(index, size, data)
         project.grooves[index] = groove_obj

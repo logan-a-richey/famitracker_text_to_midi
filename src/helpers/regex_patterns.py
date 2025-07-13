@@ -17,6 +17,14 @@ class RegexPatterns:
         (?P<size>\d+)\s*
         \"(?P<name>.*)\"
         ''', re.VERBOSE)
+    
+    GROOVE = re.compile(r'''
+        ^(?P<tag>GROOVE)\s+
+        (?P<index>\d+)\s+
+        (?P<size>\d+)\s*\:\s*
+        (?P<data>.*)$
+        ''', re.VERBOSE)
+
     MACRO = re.compile(r'''
         (?P<tag>\w+)\s+        
         (?P<type>\-?\d+)\s+     
@@ -25,7 +33,7 @@ class RegexPatterns:
         (?P<release>\-?\d+)\s+     
         (?P<setting>\-?\d+)        
         \s*\:\s*
-        (?P<data>.*)            
+        (?P<data>.*)$            
         ''', re.VERBOSE)
     INST_BASIC = re.compile(r'''
         ^(?P<tag>\w+)\s+       
@@ -91,7 +99,7 @@ class RegexPatterns:
         (?P<loop>\-?\d+)\s+
         (?P<release>\-?\d+)\s+
         (?P<setting>\-?\d+)\s*\:\s*
-        (?P<lst>[0-9\s]*)
+        (?P<data>.*)$
         ''', re.VERBOSE)
     TRACK = re.compile(r'''
         ^(?P<tag>TRACK)\s+
@@ -103,13 +111,13 @@ class RegexPatterns:
     COLUMNS = re.compile(r'''
         ^(?P<tag>COLUMNS)
         \s*\:\s*
-        (?P<data>.*)
+        (?P<data>.*)$
         ''', re.VERBOSE)
     ORDER = re.compile(r'''
         ^(?P<tag>ORDER)\s+
         (?P<frame>[0-9A-F]{2})
         \s*\:\s*
-        (?P<data>.*)
+        (?P<data>.*)$
         ''', re.VERBOSE)
     PATTERN = re.compile(r'''
         ^(?P<tag>PATTERN)\s+
@@ -119,7 +127,7 @@ class RegexPatterns:
         ^(?P<tag>ROW)\s+
         (?P<row>[0-9A-F]{2})
         \s*\:\s*
-        (?P<data>.*)
+        (?P<data>.*)$
         ''', re.VERBOSE)
     
     INT_LIST = re.compile(r'\-?\d+')

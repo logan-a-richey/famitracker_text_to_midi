@@ -18,7 +18,7 @@ class InfoHandler:
         '''
         regex_match = RegexPatterns.SONG_INFORMATION.match(line)
         if not regex_match:
-            raise ValueError("Regex failed")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
 
         key, val = regex_match.group("tag", "name")
         key = key.lower()
@@ -37,7 +37,7 @@ class InfoHandler:
         '''
         regex_match = RegexPatterns.SONG_INFORMATION.match(line)
         if not regex_match:
-            raise ValueError("Regex failed.")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
         
         key, val = regex_match.group("tag", "name")
         if project.comment:
@@ -59,7 +59,7 @@ class InfoHandler:
         '''
         regex_match = RegexPatterns.GLOBAL_SETTINGS.match(line)
         if not regex_match:
-            raise ValueError("Regex failed")
+            raise ValueError("{} Regex failed.".format(self.__class__.__name__))
 
         key, val = regex_match.group("tag", "value")
         key = key.lower()
