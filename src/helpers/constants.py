@@ -1,5 +1,7 @@
 # constants.py
 
+SUBDIVISION = 120 # 16th note
+
 class MacroTypes:
     VOL = 0
     ARP = 1 

@@ -128,7 +128,7 @@ class RegexPatterns:
     NOTE_ON = re.compile(r'^[A-G][\-#b]\d')
     NOTE_OFF = re.compile(r'^\-{3}')
     NOTE_RELEASE = re.compile(r'^\={3}')
-    NOISE_ON = re.compile(r'#\-[0-9A-F]')
+    NOISE_ON = re.compile(r'[0-9A-F]\-\#')
     ECHO_BUFFER = re.compile(r'^\^\-[0-3]')
 
     BXX = re.compile(r'B[0-9A-F]{2}')

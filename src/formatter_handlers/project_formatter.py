@@ -5,7 +5,7 @@ logger = Logger(__name__)
 logger.set_level(LoggingLevels.VERBOSE)
 
 import re
-from helpers.helper_functions import generate_token_key, get_next_item
+from helpers.helper_functions import generate_token_key, get_next_item, classify_token_type
 from helpers.constants import TokenType, ControlFlowType
 from helpers.regex_patterns import RegexPatterns
 from data.echo_buffer import  EchoBuffer 
@@ -42,41 +42,6 @@ class ProjectFormatter:
         self.list_orders = []
         self.echo_buffers = []
 
-    def classify_token_type(self, token: str) -> int:
-        '''
-        Returns the corresponding event type of a FamiTracker note token.
-        
-        EVENT_TYPE:     | STRING        | STRING DESCRIPTION
-        ----------------+---------------+---------------------------------------
-        NOTE_ON:        | A-4, C#5, Bb4 | Note letter, accidental, octave
-        NOTE_OFF:       | ---           | 3 dashes 
-        NOTE_RELEASE:   | ===           | 3 equals
-        NOTE_NOISE:     | #-0, #-F      | # - hex
-        ECHO_BUFFER:    | ^-0, ^-3      | ^ - number
-        OTHER:          | ..., xyz      | ... or invalid
-        '''
-        
-        matchers = [
-            RegexPatterns.NOTE_ON,
-            RegexPatterns.NOTE_OFF,
-            RegexPatterns.NOTE_RELEASE,
-            RegexPatterns.NOISE_ON,
-            RegexPatterns.ECHO_BUFFER
-        ]
-        fields = [
-            TokenType.NOTE_ON,
-            TokenType.NOTE_OFF,
-            TokenType.NOTE_RELEASE,
-            TokenType.NOISE_ON,
-            TokenType.ECHO_BUFFER
-        ]
-        
-        for matcher, field in zip(matchers, fields):
-            regex_match = matcher.match(token)
-            if regex_match:
-                return field
-
-        return TokenType.OTHER
     
     def handle_echo_buffer(self, token: str, col: int) -> str:
         ''' 
@@ -153,7 +118,7 @@ class ProjectFormatter:
                     tokens.append(null_token)
                     continue
 
-                event_type = self.classify_token_type(token)
+                event_type = classify_token_type(token)
                 if event_type == TokenType.ECHO_BUFFER:
                     token = self.handle_echo_buffer(token, j)
 
