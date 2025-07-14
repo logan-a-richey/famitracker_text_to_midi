@@ -139,6 +139,11 @@ class RegexPatterns:
     NOISE_ON = re.compile(r'[0-9A-F]\-\#')
     ECHO_BUFFER = re.compile(r'^\^\-[0-3]')
 
+    TOKEN_NOTE_ON = re.compile(r'^[A-G][\-#b][0-9]$')
+    TOKEN_NOISE_ON = re.compile(r'^[0-9A-F]\-\#$')
+    TOKEN_INST = re.compile(r'^[0-9A-F]{2}$')
+    TOKEN_VOL = re.compile(r'^[0-9A-F]$')
+
     BXX = re.compile(r'B[0-9A-F]{2}')
     CXX = re.compile(r'C[0-9A-F]{2}')
     DXX = re.compile(r'D[0-9A-F]{2}')

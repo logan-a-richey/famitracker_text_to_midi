@@ -27,19 +27,21 @@ def get_next_item(lst, item):
     next_index = (this_index + 1) % len(lst)
     return lst[next_index]
 
-def clean_string(input_string, mode="Snake") -> str:
+def clean_string(input_string, pascal=False) -> str:
     ''' 
     Removes all non-alphanumeric chars from a string
     Converts to snake_case
     '''
 
     WORD_REGEX = re.compile(r'[a-zA-Z0-9]+') 
-    if mode == "Pascal":
+    if pascal:
+        # PascalCase
         word_list = WORD_REGEX.findall(input_string)
         word_list = [word.capitalize() for word in word_list]
         output_string = "".join(word_list)
         return output_string 
     else:
+        # snake_case
         word_list = WORD_REGEX.findall(input_string)
         word_list = [word.lower() for word in word_list]
         output_string = "_".join(word_list)
