@@ -176,7 +176,6 @@ class ProjectExporter:
         duration = context.curr.start - context.last.start
         if duration == 0:
             logger.warn("Zero duration note. {}".format(context))
-            exit(1)
             return 
 
         scaled_volume = context.last.volume * 8 
