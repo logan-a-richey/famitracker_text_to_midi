@@ -44,6 +44,9 @@ class ColContext:
         
         self.curr = NoteData(0, 0, 0, 15)
         self.last = NoteData(0, 0, 0, 15)
+        
+        # ensure that a context can only add a note once per loop iteration
+        self.one_shot = True
 
     def __str__(self):
         return "<{}> {}".format(self.__class__.__name__, self.__dict__)

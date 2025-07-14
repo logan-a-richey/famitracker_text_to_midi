@@ -167,6 +167,11 @@ class ProjectExporter:
 
         if not context.is_playing:
             return 
+        
+        # ensure that a context can only add a note once per loop iteration
+        if not context.one_shot:
+            return 
+        context.one_shot = False 
 
         duration = context.curr.start - context.last.start
         if duration == 0:
@@ -209,10 +214,12 @@ class ProjectExporter:
 
         return
     
-    def _handle_pitch_bend(self, context: "ColContext", token: str):
+    def _handle_pitch_bend(self, context: "ColContext", token: str) -> bool:
         ''' 
-        Pitch bend effect. Qxx for upward bend. Rxx for downward bend.
-        Effectively simulates a new note in MIDI playback.
+        Handles pitch bend. Qxx = upward bend, Rxx = downward bend.
+
+        If: token contains NOTE_ON or NOISE_ON, just apply pitch shift to context.curr.pitch
+        Else: treat it like a note trigger.
         '''
 
         if not context.is_playing:
@@ -222,19 +229,26 @@ class ProjectExporter:
         if not pitch_bend_matches:
             return 
         
-        self.add_note_if_valid(context)
+        token_type = classify_token_type(token)
         
-        # prepare next note
+        # Case 1:
+        if token_type not in [TokenType.NOTE_ON, TokenType.NOISE_ON]:
+            self.add_note_if_valid(context)
+        
+        # Apply pitch shift:
         last_match = pitch_bend_matches[-1]
         value = int(last_match[2], 16)
+        
         if last_match[0] == "Q":
             context.curr.pitch += value
         if last_match[0] == "R":
             context.curr.pitch -= value 
         
-        self._sync_context(context)
-
-        context.is_playing = True    
+        # Case 1 (continued): If this is a standalone pitch bend, sync to start a new note:
+        if token_type not in [TokenType.NOTE_ON, TokenType.NOISE_ON]:
+            context.is_playing = True
+            self._sync_context(context)
+        
         return 
     
     def _handle_arpeggio(self, context: "ColContext", token: str):
@@ -264,24 +278,25 @@ class ProjectExporter:
 
         self._setup_midi_writer()
 
-        # read and loop through Track lines:
+        # NOTE read and loop through Track lines:
         for i, line in enumerate(self.track.lines):
             # DEBUG
-            logger.verbose(line)
+            logger.verbose("LINE_NO {} | {}".format(i, line))
             
             # TODO handle MIDI BPM changes
             self._handle_speed(line)
 
             tokens = [token.strip() for token in line.split("|")[1:]]
             for j, token in enumerate(tokens):
-                token_type = classify_token_type(token)
-                context = self.contexts[j]
-
-                # TODO define subdivision from cmdline
                 midi_tick = i * self.SUBDIVISION 
+                token_type = classify_token_type(token)
+                
+                # NOTE context setup
+                context = self.contexts[j]
+                context.one_shot = True
                 context.curr.start = midi_tick
 
-                # TODO - handle effects
+                # NOTE - handle effects
                 self._handle_pitch(context, token) 
                 self._handle_instrument(context, token)
                 self._handle_volume(context, token)
@@ -290,20 +305,18 @@ class ProjectExporter:
                 self._handle_arpeggio(context, token)
 
                 # NOTE add and release notes
-                
                 # store new notes
                 if (token_type == TokenType.NOTE_ON) or (token_type == TokenType.NOISE_ON):
                     self.add_note_if_valid(context)
                     context.is_playing = True    
                     self._sync_context(context)
-
                 # note off events
                 elif (token_type == TokenType.NOTE_OFF) or (token_type == TokenType.NOTE_RELEASE) or (context.curr.volume == 0):
                     self.add_note_if_valid(context)
                     context.is_playing = False    
                     self._sync_context(context)
                                 
-        # export midi
+        # NOTE export midi
         output_filename = clean_string("TRACK_{}_{}".format(track.index, track.name)) + ".mid"
         output_path = os.path.join(output_dir, output_filename)
         
@@ -323,3 +336,4 @@ class ProjectExporter:
             self._export_track(track, output_dir) 
         
         return 
+
