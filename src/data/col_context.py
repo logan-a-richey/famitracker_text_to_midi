@@ -1,27 +1,34 @@
 # col_context.py
 
+class NoteData:
+    ''' Information about the column state '''
+
+    def __init__(self,
+        _start: int,
+        _pitch: int,
+        _instrument: int,
+        _volume: int
+    ):
+        # store fami note information
+        self.start = _start
+        self.pitch = _pitch 
+        self.instrument = _instrument 
+        self.volume = _volume 
+
+        # store effect values
+        self.arp_x = 0 
+        self.arp_y = 0 
+
 class ColContext:
     ''' 
     Contains buffered note data 
     Used to store intermediate note data in MidiExport.
+    
+    NoteData contains information about the column state.
     '''
 
     def __init__(self, _idx: int):
         self.idx = _idx
-
         self.is_playing = False
-        
-        self.last_tick = 0          # 0 or greater
-        self.curr_tick = 0
-        
-        self.pitch = 60         # middle c
-
-        self.curr_inst = 0     # default inst
-        self.last_inst = 0
-        
-        self.curr_vol = 15      # default hex max
-        self.last_vol = 15
-
-        # For 0XY effect
-        self.arp_x = 0
-        self.arp_y = 0
+        self.curr = NoteData(0, 0, 0, 15)
+        self.last = NoteData(0, 0, 0, 15)

@@ -1,8 +1,9 @@
 # constants.py
 
-DRUM_TRACK = 0 
-DRUM_CHANNEL = 9
-DRUM_VOL = 120
+class DrumMidiConstants:
+    DRUM_TRACK = 0 
+    DRUM_CHANNEL = 9
+    DRUM_VOL = 120
 
 class MacroTypes:
     VOL = 0
@@ -57,18 +58,3 @@ class DrumPitches:
     TOM_HI = 50
 
     COWBELL = 56
-
-DRUM_STRINGS = [
-    "kick", 
-    "snare", 
-    "tom", 
-    "ride" 
-    "crash"
-]
-DRUM_STRINGS_PITCHES = [
-    DrumPitches.BASS_DRUM, 
-    DrumPitches.SNARE_DRUM, 
-    DrumPitches.TOM_HI_MID, 
-    DrumPitches.CYM_RIDE, 
-    DrumPitches.CYM_CRASH 
-]

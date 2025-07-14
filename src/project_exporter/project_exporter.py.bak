@@ -1,0 +1,359 @@
+# midi_exporter.py.bak
+
+import os 
+
+from util.custom_logger import Logger, LoggingLevels
+logger = Logger(__name__)
+logger.set_level(LoggingLevels.VERBOSE)
+
+from helpers.helper_functions import clean_string, classify_token_type
+from helpers.constants import TokenType, DrumPitches, DrumMidiConstants
+
+from helpers.fami_helpers import FamiHelpers
+from helpers.regex_patterns import RegexPatterns
+from data.col_context import ColContext
+
+# CPP VERSION
+# from submodules.midi_writer_cpp.python_usage.midi_writer import MidiWriter
+
+# PYTHON VERSION
+# TODO placeholder submodule
+from submodules.mock_midi_writer_py.midi_writer import MidiWriter 
+
+# TODO better place for this global variable?
+SUBDIVISION = 120
+
+DRUM_STRINGS = [
+    "kick", 
+    "snare", 
+    "tom", 
+    "ride" 
+    "crash"
+]
+DRUM_STRINGS_PITCHES = [
+    DrumPitches.BASS_DRUM, 
+    DrumPitches.SNARE_DRUM, 
+    DrumPitches.TOM_HI_MID, 
+    DrumPitches.CYM_RIDE, 
+    DrumPitches.CYM_CRASH 
+]
+
+class ProjectExporter:
+    '''
+    Contains methods for parsing a Formatted FamiTracker Track into MIDI.
+
+    TODO:
+    0XY effect (arpeggio / chord effect)
+    QXY and RXY (pitch bend up and down effect)
+    GXX (note delay effect)
+    SXX (note cut effect)
+    Better Drum Mapping
+    '''
+
+    def __init__(self):
+        self.project = None
+        self.col_contexts = []
+        self.midi = MidiWriter()
+        self.fami_helpers = FamiHelpers()
+
+        # for DEBUG
+        self.line = ""
+
+    def test_export(self, output_dir_path: str) -> None:
+        project_path = os.path.join(output_dir_path, "Test")
+        os.makedirs(project_path, exist_ok=True)
+        output_filename = "c_major_scale.mid"
+        output_filepath = os.path.join(project_path, output_filename)
+        
+        # start the export
+        logger.debug("Started file export: {}".format(output_filename))
+        
+        midi_writer = MidiWriter()
+        midi_writer.add_time_signature(0, 0, 4, 4)
+        midi_writer.add_bpm(0, 0, 133)
+
+        DEFAULT_TRACK = 0
+        DEFAULT_CHANNEL = 0
+        DEFAULT_VELOCITY = 120
+        QUARTER_NOTE = 480
+        notes = [60, 62, 64, 65, 67, 69, 71, 72]
+        for tick, note in enumerate(notes):
+            midi_writer.add_note(DEFAULT_TRACK, DEFAULT_CHANNEL, tick * QUARTER_NOTE, QUARTER_NOTE, note, DEFAULT_VELOCITY)
+            # midi_writer.add_note(0, 0, tick * 480, 480, note, 120)
+        
+        # export finished
+        midi_writer.save(output_filepath)
+        logger.info("File created: {}".format(output_filepath))
+        return 
+
+#   def add_drum_note_if_valid(self, context: "ColContext", specific_drum="") -> None:
+#       if not context.is_playing:
+#           return 
+#
+#       inst = self.project.instruments.get(context.last_inst, None)
+#       if not inst:
+#           return 
+#
+#       inst_name_lower = inst.name.lower()
+#       
+#       if "hat" in inst_name_lower:
+#           if "open" in inst.name:
+#               self.midi.add_note(DRUM_TRACK, DRUM_CHANNEL, context.last_tick, SUBDIVISION, DrumPitches.HI_HAT_OPEN, DRUM_VOL)
+#           else:
+#               self.midi.add_note(DRUM_TRACK, DRUM_CHANNEL, context.last_tick, SUBDIVISION, DrumPitches.HI_HAT_CLOSED, DRUM_VOL)
+#       
+#       for substring, drum_pitch in zip(DRUM_STRINGS, DRUM_STRINGS_PITCHES):
+#           if substring in inst_name_lower:
+#               self.midi.add_note(DRUM_TRACK, DRUM_CHANNEL, context.last_inst, SUBDIVISION, drum_pitch, DRUM_VOL)
+#
+#           if specific_drum == substring: 
+#               self.midi.add_note(DRUM_TRACK, DRUM_CHANNEL, context.last_inst, SUBDIVISION, drum_pitch, DRUM_VOL)
+
+
+    def add_drum_note(self, context: "ColContext", pitch: int) -> None:
+        self.midi.add_note(
+            DrumMidiConstants.DRUM_TRACK, 
+            DrumMidiConstants.DRUM_CHANNEL, 
+            context.last_inst, 
+            SUBDIVISION, 
+            pitch, 
+            DrumMidiConstants.DRUM_VOL
+        )
+        return
+
+    def add_note_if_valid(self, context: "ColContext") -> None:
+        if not context.is_playing:
+            return 
+        
+        duration = context.curr_tick - context.last_tick
+        if duration <= 0 :
+            logger.error("Duration invalid: {} {}".format(duration, self.line))
+            return 
+        if context.pitch < 0 or context.pitch > 127:
+            logger.error("Pitch invalid: {} {}".format(context.pitch, self.line))
+            return
+        if context.last_vol <= 0 or context.last_vol > 127:
+            logger.debug("Velocity invalid: {} {}".format(context.last_vol, self.line))
+            return 
+        
+        midi_args = [
+            context.idx + 1, # track_idx
+            context.idx  % 2 , # channel (alternate piano instruments)
+            context.last_tick, # start 
+            duration, 
+            context.pitch, 
+            context.last_vol
+        ]
+        # logger.verbose("Added note: track={}, channel={}, start={}, duration={}, pitch={}, velocity={}".format(*midi_args)) 
+        self.midi.add_note(*midi_args)
+        
+        if context.arp_x:
+            # modify the pitch parameter
+            midi_args[4] = context.pitch + context.arp_x 
+            # logger.verbose("Added note: track={}, channel={}, start={}, duration={}, pitch={}, velocity={}".format(*midi_args)) 
+            self.midi.add_note(*midi_args)
+        if context.arp_y:
+            # modify the pitch parameter
+            midi_args[4] = context.pitch + context.arp_y 
+            # logger.verbose("Added note: track={}, channel={}, start={}, duration={}, pitch={}, velocity={}".format(*midi_args)) 
+            self.midi.add_note(*midi_args)
+            
+        # TODO
+        # self.add_drum_note_if_valid(context)
+
+        return
+
+    def _handle_speed_and_tempo(self, line: str) -> None:
+        speed_and_tempo_matches = RegexPatterns.EFFECT_SPEED_AND_TEMPO.findall(line)
+        if speed_and_tempo_matches:
+            last_match = speed_and_tempo_matches[-1] 
+            last_match_type = last_match[0] 
+            last_match_val = int(last_match[1:], 16)
+            if last_match == 'F':
+                if last_match_val > self.project.split:
+                    self.track.curr_speed = self.track.speed
+                    self.track.curr_tempo = last_match_val
+                else:
+                    self.track.speed_speed = last_match_val
+                    self.track.curr_tempo = self.track.tempo
+            else:
+                # groove match
+                # groove mode on
+                pass
+        return
+
+    def _setup_midi_writer(self) -> None:
+        self.midi = MidiWriter()
+        self.midi.add_track()
+        self.midi.add_track_name(0, clean_string(self.track.name), 0)
+        self.midi.set_channel(0, 0)
+        bpm = FamiHelpers.get_fami_bpm(self.project, self.track)
+        self.midi.add_bpm(0, 0, bpm)
+        self.midi.add_time_signature(0, 0, 4, 4)
+        return 
+    
+    def _handle_effect_arpeggio(self, context: "ColContext", token: str) -> None:
+        # handle context effects
+        arp_matches = RegexPatterns.EFFECT_ARP.findall(token)
+        if arp_matches:
+            last_arp_match = arp_matches[-1]
+            context.arp_x = int(last_arp_match[1], 16)
+            context.arp_y = int(last_arp_match[2], 16)
+        return 
+
+    def _handle_effect_gxx(self, context: "ColContext", token: str) -> None:
+        gxx_matches = RegexPatterns.EFFECT_GXX.findall(token)
+        if gxx_matches:
+            last_gxx_match = gxx_matches[-1]
+            gxx_val = int(last_gxx_match[1:], 16)
+            context.curr_tick = int(SUBDIVISION / self.track.curr_speed * gxx_val)
+        return 
+
+    def _handle_effect_sxx(self, context: "ColContext", token: str) -> None:
+        # TODO
+        #sxx_matches = RegexPatterns.EFFECT_SXX.findall(token)
+        #if sxx_matches:
+        #    last_sxx_match = sxx_matches[-1]
+        return 
+
+    def _update_context(self, context: "ColContext", token: str, midi_tick: int) -> None:
+        context.curr_vol = FamiHelpers.get_token_vol(token, context)
+        context.curr_inst = FamiHelpers.get_token_inst(token, context)
+        context.curr_tick = midi_tick 
+
+    def _handle_effect_pitch_bend(self, context: "ColContext", token: str) -> None:
+        pitch_bend_matches = RegexPatterns.EFFECT_RQ.findall(token)
+        if pitch_bend_matches:
+            last_match = pitch_bend_matches[-1]
+            bend_value = int(last_match[2], 16)
+            if last_match[0] == 'Q':
+                self.add_note_if_valid(context)
+                
+                # NOTE prepare new note
+                context.is_playing = True 
+                context.last_tick = context.curr_tick
+                context.pitch += bend_value 
+                context.last_inst = context.curr_inst 
+                context.last_vol = context.curr_vol
+            elif last_match[0] == 'R':
+                self.add_note_if_valid(context)
+                
+                # NOTE prepare new note
+                context.is_playing = True 
+                context.last_tick = context.curr_tick
+                context.pitch -= bend_value 
+                context.last_inst = context.curr_inst 
+                context.last_vol = context.curr_vol
+        return 
+        
+    def export_track(self, track: "Track", path: str) -> None:
+        self.col_contexts = [ColContext(idx) for idx in range(track.num_cols)]
+        self.track = track
+        self.track.curr_speed = self.track.speed
+
+        self._setup_midi_writer()
+
+        for i, line in enumerate(track.lines):
+            midi_tick = i * SUBDIVISION 
+            
+            # DEBUG
+            self.line = line 
+
+            # TODO debug this
+            self._handle_speed_and_tempo(line)
+
+            # TODO update BPM with midi.add_bpm()
+
+            tokens = [token.strip() for token in line.split("|")[1:]]
+            for j, token in enumerate(tokens):
+                context = self.col_contexts[j] 
+
+                self._update_context(context, token, midi_tick)
+                self._handle_effect_arpeggio(context, token)
+                # TODO
+                # self._handle_effect_gxx(context, token)
+                # TODO
+                # self._handle_effect_sxx(context, token)
+                # TODO
+                # self._handle_effect_pitch_bend(context, token)
+
+                # --- Token analysis ---                
+                token_type = classify_token_type(token)
+                if token_type == TokenType.NOTE_ON:
+                    self.add_note_if_valid(context)
+
+                    # NOTE prepare new note
+                    context.is_playing = True 
+                    context.last_tick = context.curr_tick
+                    context.pitch = FamiHelpers.get_note_on_pitch(token)
+                    context.last_inst = context.curr_inst 
+                    context.last_vol = context.curr_vol
+
+                    # add kick drum in place of DPCM
+                    #if j == 4:
+                    #    self.add_drum_note(context, DrumPitches.BASS_DRUM)
+
+                elif (token_type == TokenType.NOTE_OFF) or (token_type == TokenType.NOTE_RELEASE) or (context.curr_vol == 0):
+                    self.add_note_if_valid(context)
+                    context.is_playing = False 
+
+                elif token_type == TokenType.NOISE_ON:
+                    # NOTE TODO
+                    continue 
+
+                    # NOTE: we could add the noise note directly to the score, but chromatic will be dissonant 
+                    
+                    # pitch = FamiHelpers.get_noise_on_pitch(token)
+                    # self.add_drum_note(context, DrumPitches.HI_HAT_CLOSED)
+                    
+                    # NOTE prepare new note
+                    context.is_playing = True 
+                    context.last_tick = context.curr_tick
+                    context.pitch = FamiHelpers.get_noise_on_pitch(token)
+                    context.last_inst = context.curr_inst 
+                    context.last_vol = context.curr_vol
+
+        # --- FINAL STEPS ---
+        # add the last note at the end of the score
+        # last_row_index = len(track.lines) + 1 
+
+        #midi_tick = i * SUBDIVISION 
+        #for context in self.col_contexts:
+        #    self.add_note_if_valid(context)
+
+        # finalize filename and filepath 
+        filename = clean_string(track.name)
+        if not filename:
+            filename = "new_song"
+        filename = "track_{}_{}.mid".format(track.index, filename)
+        filepath = os.path.join(path, filename)
+
+        # export!
+        logger.info("Created {}".format(filepath))
+        self.midi.save(filepath)
+        
+        return
+     
+    def export_project(self, project, output_dir_path: str, rows_per_beat: int) -> None:
+        ''' Export all Tracks in Project as MIDI '''
+
+        self.project = project
+        global SUBDIVISION 
+        SUBDIVISION = int(480 / project.rows_per_beat)
+
+        # self.test_export(output_dir_path)
+
+        # create a folder for this project 
+        cleaned_project_name = clean_string(project.title, mode="Pascal")
+        if not cleaned_project_name:
+            cleaned_project_name = "DefaultProject"
+
+        project_path = os.path.join(output_dir_path, cleaned_project_name)
+        os.makedirs(project_path, exist_ok=True)
+        
+        # export tracks
+        for track in project.tracks:
+            self.export_track(track, project_path)
+        
+        return 
+    

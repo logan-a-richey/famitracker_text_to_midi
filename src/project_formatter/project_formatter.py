@@ -144,19 +144,30 @@ class ProjectFormatter:
     def format_track(self, track):
         ''' Populates track.lines with the correct seqential data '''
 
+        # setup
         self.track = track
         self.track.lines.clear()
 
         self.list_orders = list(track.orders.keys())
         self.echo_buffers = [EchoBuffer() for _ in range(self.track.num_cols)]
 
+        # loop over song
         seen_it = set()
         while self.target_order not in seen_it:
             seen_it.add(self.target_order)
             self.scan_target_order()
+
+        # Add final line (Needed for final note append. Note OFF will trigger it)
+        final_tokens = []
+        for col in self.track.eff_cols:
+            token = "--- .. .{}".format(" ..." * col) 
+            final_tokens.append(token)
         
-        for line in track.lines:
-            logger.verbose(line)
+        stop_line = " | ".join(["PAT XX ROW XX"] + final_tokens)
+        self.track.lines.append(stop_line)        
+
+        #for line in track.lines:
+        #    logger.verbose(line)
     
     def format_project(self, project):
         ''' Formats all Tracks within a Project '''
