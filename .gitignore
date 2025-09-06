@@ -1,6 +1,7 @@
 venv 
 __pycache__
 tests
+input_files
 MidiExports
 *.mid
 *.exe
