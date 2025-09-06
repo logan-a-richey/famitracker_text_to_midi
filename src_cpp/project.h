@@ -4,6 +4,11 @@
 
 #include "macro.h"
 #include "instrument.h"
+#include "track.h"
+
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 class Project {
 public:
@@ -18,7 +23,10 @@ public:
         vibrato(1),
         split(32),
         n163channels(0) {}
+    
+    void say();
 
+public:
     std::string title, author, copyright, comment;
 
     int machine, framerate, expansion, vibrato, split, n163channels;
@@ -27,4 +35,6 @@ public:
     
     std::unordered_map<int, Instrument> instruments;
 
+    std::vector<Track> tracks;
 };
+

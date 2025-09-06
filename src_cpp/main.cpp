@@ -7,7 +7,7 @@
 #include <regex>
 
 #include "project.h"
-#include "utils.h"
+#include "project_scanner.h"
 
 // usage:
 // ./main <input_file.txt>
@@ -34,10 +34,13 @@ int main(int argc, char** argv)
     }
 
     Project my_project; 
-    
-    scan_project(my_project, input_filename);
-    format_project(my_project);
-    export_midi(my_project, output_filename);
+    ProjectScanner scanner;
+
+    scanner.scan_project(my_project, input_filename);
+    my_project.say();
+
+    //format_project(my_project);
+    //export_midi(my_project, output_filename);
 
     return 0;
 }
