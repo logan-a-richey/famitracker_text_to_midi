@@ -2,45 +2,32 @@
 
 #include <iostream>
 #include <string>
-#include <unordered_map>
-#include <vector> 
-#include <regex>
 
 #include "project.h"
-#include "project_scanner.h"
+#include "project_loader.h"
+#include "project_formatter.h"
+#include "project_exporter.h"
 
-// usage:
-// ./main <input_file.txt>
-
-int main(int argc, char** argv) 
-{
-    std::cout << "Running famitracker text-to-midi converter ..." << std::endl;
-
-    std::string input_filename, output_filename; 
-
-    // get input_filename
-    if (argc >= 2) {
-        input_filename = std::string(argv[1]);
-    } else {
-        std::cerr << "Usage: ./main <input.txt>" << std::endl;
-        return 1;
+int main(int argc, char** argv) {
+    if (argc != 3) {
+        std::cerr << "[ERROR] Usage: ./main <input> <output path>" << std::endl;
+        exit(1);
     }
+    
+    std::string input_file = argv[1];
+    std::string output_path = argv[2];
 
-    // (optional) get output_filename
-    if (argc >= 3) {
-        output_filename = std::string(argv[2]);
-    } else  {
-        output_filename = "output.mid";
-    }
+    std::cout << "[INFO] Input file  : " << input_file << std::endl;
+    std::cout << "[INFO] Output path : " << output_path << std::endl;
+    
+    Project p;
+    ProjectLoader pl;
+    ProjectFormatter pf;
+    ProjectExporter pe;
 
-    Project my_project; 
-    ProjectScanner scanner;
-
-    scanner.scan_project(my_project, input_filename);
-    my_project.say();
-
-    //format_project(my_project);
-    //export_midi(my_project, output_filename);
+    pl.load_project(p, input_file);
+    pf.format_project(p);
+    pe.export_project(p, output_path);
 
     return 0;
 }

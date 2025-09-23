@@ -2,6 +2,6 @@
 
 set -e
 echo "compilation ..."
-g++ *.cpp -o main.exe
+g++ *.cpp -o run.exe
 echo "compilation - ok"
 
