@@ -1,4 +1,4 @@
-# README: Famitracker Text To MIDI — Python Version
+# FamiTracker Text To MIDI — Python Version
 
 A Python application that converts a FamiTracker text export file (`.txt`) into a MIDI file.
 
