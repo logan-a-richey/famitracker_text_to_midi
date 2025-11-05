@@ -1,44 +1,69 @@
-# Famitracker Text To Midi
-Program to convert a FamiTracker text export file into a MIDI file.
-MIDI files can be loaded into other software such as MuseScore or FL Studio, saving hours of manual transcription time.
+# README: Famitracker Text To MIDI — Python Version
 
-## Features:
-*   Creates a `Project` data structure to contain the data. 
-*   `ProjectReader` reads the file line by line, loading data into the Project class.
-*   Can process large files containing ~200,000 lines in under 3 seconds.
-*   The Project is then parsed to create sequential lines. FamiTracker uses a light compression technique when storing tokens within patterns. The `ProjectFormatter` class unpacks those tokens.
-*   Contains built-in `MidiWriter` submodule, a custom library written in both C++ and Python for creating MIDI files.
-*   `ProjectExporter` reads the sequential line data and creates the MIDI track.
-*   A FamiTracker module can contain many songs. This program will export all tracks in the file.
+A Python application that converts a FamiTracker text export file (`.txt`) into a MIDI file.
 
-## Project Significance:
-This unique project taught me much about Python and C++. Here are some of the key skills used throughout this project:
-*   File I/O in both Python and C++.
-*   Gained better understanding list comprehensions and `std::iterator` objects. 
-*   String parsing with regex and `std::stringstream`.
-*   Experienced with OOP data structures such as structs, dispatch tables, GoF design patterns, abstract classes as interfaces, standard library containers. 
-*   Usage of Python's `dictionary` and C++'s `std::unordered_map<>` objects to store FamiTracker tokens and orders in a concise way.
-*   Low-level binary parsing with MidiWriter. Parsing MIDI chunks of varying size (`varlen`), storing intermediate results in a Track object, writing the intermediate data to a MIDI binary file.
-*   CMake build configurations.
-*   Managing GitHub repos. Keeping effective version control through spliting and merging different branches, creating submodules, and merging and splitting multiple repos.
+MIDI files can then be imported into DAWs or notation software such as MuseScore or FL Studio, saving hours of manual transcription work.
 
-## Usage:
+---
 
-** Setup: **
+## Features
+
+* Builds a `Project` object to store all parsed FamiTracker data.
+* `ProjectReader` parses the `.txt` export file line by line into structured data.
+* Uses a **dynamic registry decorator** to implement a flexible dispatch table for opcode handling.
+* Handles large input files (≈200,000 lines) efficiently — typically under 3 seconds.
+* `ProjectFormatter` expands FamiTracker’s lightweight compression into sequential track lines.
+* Includes a custom-built `MidiWriter` module for low-level MIDI event creation and binary writing.
+* `ProjectExporter` converts sequential project data into playable MIDI tracks.
+* Supports multi-song `.txt` files — automatically exports all tracks to separate `.mid` files.
+
+---
+
+## Technical Highlights
+
+* Comprehensive use of Python’s standard library: `re`, `struct`, `io`, `dataclasses`, `pathlib`, and `typing`.
+* Object-oriented design with clear separation between reader, parser, and exporter layers.
+* Efficient token and pattern storage using Python dictionaries and comprehensions.
+* In-depth handling of MIDI variable-length quantities, delta times, and binary chunk structures.
+* Command-line interface for batch processing of multiple files.
+
+---
+
+## Installation & Usage
+
+### Setup
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+````
+
+### Run
+
+```bash
+python -m famitracker_to_midi <input_famitracker_file.txt> <output_directory (optional)>
 ```
 
-** Run the app: **
-`./app.exe <input_famitracker_file.txt> <output_directory (optional)`
+This will create one or more `.mid` files corresponding to all songs in the FamiTracker export.
 
-## Next Steps:
-* Smarter FamiTracker to MIDI drum mapping.
-* Converting the other way: MIDI -> Famitracker.
-* Flask web app version, demonstrating a simple SAAS application for any chiptune artists wishing to convert their .ftm files to .mid.
-* Exploring template metaprogrmaming implementation of the dispatch table for compile-time results, though it is probably not needed for this project.
+---
+
+## Project Significance
+
+This implementation emphasizes:
+
+* Advanced file I/O and parsing in Python.
+* OOP design patterns and registry-based dispatching.
+* Hands-on experience with binary MIDI encoding.
+* Managing an independent Git repository with disciplined version control practices.
+
+---
+
+## Next Steps
+
+* Improve drum mapping heuristics between FamiTracker and General MIDI kits.
+* Add support for MIDI → FamiTracker conversion.
+* Develop a simple Flask-based web frontend (proof-of-concept SaaS tool for chiptune composers).
 
 ## License
 The MIT License (MIT)
